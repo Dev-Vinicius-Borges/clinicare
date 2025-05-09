@@ -1,7 +1,9 @@
+import 'package:clini_care/components/Forms/RecuperarSenha/ReceberCodigoForm.dart';
+import 'package:clini_care/components/RecuperarSenha/ReceberCodigo.dart';
 import 'package:clini_care/components/RecuperarSenha/RecuperarSenha.dart';
 import 'package:flutter/material.dart';
 
-class RecuperarSenhaPage extends StatelessWidget{
+class ReceberCodigoPage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,7 +13,7 @@ class RecuperarSenhaPage extends StatelessWidget{
         decoration: BoxDecoration(
             color: Color.fromARGB(255, 64, 91, 230)
         ),
-        child: RecuperarSenha()
+        child: ReceberCodigo()
       ),
     );
   }
