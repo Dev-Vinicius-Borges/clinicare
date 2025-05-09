@@ -1,4 +1,5 @@
 import 'package:clini_care/components/Forms/LoginForm.dart';
+import 'package:clini_care/components/Forms/registro/RegistroEnderecoForm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -61,7 +62,7 @@ class RegistroEndereco extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: EdgeInsets.all(16),
-                    child: LoginForm(),
+                    child: RegistroEnderecoForm(),
                   ),
                 ),
               ),
