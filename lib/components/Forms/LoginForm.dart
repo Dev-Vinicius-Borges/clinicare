@@ -191,7 +191,7 @@ class LoginFormState extends State<LoginForm> {
                   ),
                   TextButton(
                     onPressed: () {
-                      Navigator.pushNamed(context, '/registro');
+                      Navigator.pushNamed(context, '/registro/dados_pessoais');
                     },
                     style: ButtonStyle(
                       padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
