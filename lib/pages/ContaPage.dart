@@ -1,3 +1,4 @@
+import 'package:clini_care/components/PrincipalContainer.dart';
 import 'package:flutter/material.dart';
 
 class ContaPage extends StatelessWidget{
@@ -7,12 +8,7 @@ class ContaPage extends StatelessWidget{
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-            color: Color.fromARGB(255, 64, 91, 230)
-        ),
-        child: Center(
-          child: Text("Conta", style: TextStyle(color: Colors.white),),
-        ),
+        child: PrincipalContainer(Text("Conta", style: TextStyle(color: Colors.black),)),
       ),
     );
   }

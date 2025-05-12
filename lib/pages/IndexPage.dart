@@ -1,3 +1,5 @@
+import 'package:clini_care/components/Inicio/ListaProfissionais.dart';
+import 'package:clini_care/components/PrincipalContainer.dart';
 import 'package:flutter/material.dart';
 
 class IndexPage extends StatelessWidget{
@@ -7,12 +9,7 @@ class IndexPage extends StatelessWidget{
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-            color: Color.fromARGB(255, 64, 91, 230)
-        ),
-        child: Center(
-          child: Text("Inicio", style: TextStyle(color: Colors.white),),
-        ),
+        child: PrincipalContainer(ListaProfissionais()),
       ),
     );
   }
