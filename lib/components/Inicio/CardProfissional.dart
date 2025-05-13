@@ -1,3 +1,5 @@
+import 'package:clini_care/components/BottomSheetContainer.dart';
+import 'package:clini_care/components/bottomSheets/agendamento/EscolherData.dart';
 import 'package:flutter/material.dart';
 
 class CardProfissional extends StatefulWidget {
@@ -72,23 +74,41 @@ class _CardProfissionalState extends State<CardProfissional> {
             SizedBox(
               height: 50,
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Color.fromARGB(255, 64, 91, 230),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: Text(
-                  "Agendar consulta",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+              child: Builder(
+                builder: (context) {
+                  return ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        isDismissible: false,
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) {
+                          return BottomSheetContainer(
+                            'Escolha uma data',
+                            EscolherDataDisponivel()
+                          );
+                        },
+                      );
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 64, 91, 230),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      "Agendar consulta",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  );
+                }
               ),
             ),
           ],
