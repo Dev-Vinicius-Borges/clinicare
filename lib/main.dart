@@ -1,7 +1,3 @@
-import 'package:clini_care/components/RecuperarSenha/ReceberCodigo.dart';
-import 'package:clini_care/components/registro/RegistroDadosPessoais.dart';
-import 'package:clini_care/components/registro/RegistroEndereco.dart';
-import 'package:clini_care/components/registro/RegistroSeguranca.dart';
 import 'package:clini_care/pages/AgendamentosPage.dart';
 import 'package:clini_care/pages/ContaPage.dart';
 import 'package:clini_care/pages/IndexPage.dart';
@@ -13,8 +9,13 @@ import 'package:clini_care/pages/registro/RegistroDadosPessoaisPage.dart';
 import 'package:clini_care/pages/registro/RegistroEnderecoPage.dart';
 import 'package:clini_care/pages/registro/RegistroSegurancaPage.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
-void main() {
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await initializeDateFormatting('pt_BR');
+
   runApp(const MyApp());
 }
 
