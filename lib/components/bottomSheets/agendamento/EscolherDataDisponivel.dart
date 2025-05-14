@@ -1,5 +1,5 @@
 import 'package:clini_care/components/BottomSheetContainer.dart';
-import 'package:clini_care/components/bottomSheets/agendamento/EscolherHorario.dart';
+import 'package:clini_care/components/bottomSheets/agendamento/EscolherHorarioDisponivel.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
