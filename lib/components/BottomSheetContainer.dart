@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class BottomSheetContainer extends StatelessWidget {
   final String titulo;
   final Widget conteudo;
-
   final VoidCallback? voltarParaBottomSheetAnterior;
 
   const BottomSheetContainer(
@@ -15,60 +14,71 @@ class BottomSheetContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Color.fromARGB(255, 64, 91, 230),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: EdgeInsets.all(16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  onPressed: () {
-                    if (voltarParaBottomSheetAnterior != null) {
-                      Navigator.pop(context);
-                      Future.delayed(const Duration(milliseconds: 300), () {
-                        voltarParaBottomSheetAnterior!();
-                      });
-                    } else {
-                      Navigator.pop(context);
-                    }
-                  },
-                  icon: Icon(
-                    voltarParaBottomSheetAnterior != null ? Icons.arrow_back : Icons.close,
-                    size: 32,
-                    color: Color.fromARGB(255, 184, 194, 246),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    titulo,
-                    textAlign: TextAlign.end,
-                    style: const TextStyle(
-                      color: Color.fromARGB(255, 184, 194, 246),
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
+    return AnimatedPadding(
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOut,
+      child: Container(
+        decoration: const BoxDecoration(
+          color: Color.fromARGB(255, 64, 91, 230),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        if (voltarParaBottomSheetAnterior != null) {
+                          Navigator.pop(context);
+                          Future.delayed(const Duration(milliseconds: 300), () {
+                            voltarParaBottomSheetAnterior!();
+                          });
+                        } else {
+                          Navigator.pop(context);
+                        }
+                      },
+                      icon: Icon(
+                        voltarParaBottomSheetAnterior != null ? Icons.arrow_back : Icons.close,
+                        size: 32,
+                        color: const Color.fromARGB(255, 184, 194, 246),
+                      ),
                     ),
+                    const Spacer(),
+                    Text(
+                      titulo,
+                      style: const TextStyle(
+                        color: Color.fromARGB(255, 184, 194, 246),
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              Flexible(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    child: conteudo,
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-          Container(
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-            ),
-            padding: EdgeInsets.all(16),
-            child: conteudo,
-          ),
-        ],
+        ),
       ),
     );
   }
