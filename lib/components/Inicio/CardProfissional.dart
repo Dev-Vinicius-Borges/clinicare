@@ -9,10 +9,10 @@ class CardProfissional extends StatefulWidget {
   final bool viradoParaEsquerda;
   final bool ultimoCard;
 
-  CardProfissional(
+  const CardProfissional(
     this.id_profissional,
     this.nome_profissional,
-    this.especialidade_profissional, {
+    this.especialidade_profissional, {super.key,
     required this.viradoParaEsquerda,
     required this.ultimoCard,
   });
@@ -126,7 +126,7 @@ class _CardProfissionalState extends State<CardProfissional> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               spreadRadius: 2,
               blurRadius: 8,
               offset: Offset(0, 4),

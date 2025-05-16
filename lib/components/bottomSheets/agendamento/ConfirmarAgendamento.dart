@@ -1,3 +1,6 @@
+import 'package:clini_care/components/BottomSheetContainer.dart';
+import 'package:clini_care/components/bottomSheets/agendamento/EscolherDataDisponivel.dart';
+import 'package:clini_care/components/bottomSheets/agendamento/EscolherHorarioDisponivel.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmarAgendamento extends StatefulWidget {
@@ -6,11 +9,11 @@ class ConfirmarAgendamento extends StatefulWidget {
   final DateTime data_consulta;
   final int hora_consulta;
 
-  ConfirmarAgendamento(
+  const ConfirmarAgendamento(
     this.id_profissional,
     this.especialidade,
     this.data_consulta,
-    this.hora_consulta,
+    this.hora_consulta, {super.key}
   );
 
   @override
@@ -20,134 +23,176 @@ class ConfirmarAgendamento extends StatefulWidget {
 class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 25,
-                backgroundImage: AssetImage(
-                  'assets/doctor.jpg',
-                ), // ou NetworkImage
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            CircleAvatar(
+              radius: 25,
+              backgroundImage: AssetImage(
+                'assets/doctor.jpg',
               ),
-              SizedBox(width: 12),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Nome do médico",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Text("Especialidade", style: TextStyle(color: Colors.grey)),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 20),
-          // Data
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.calendar_today, size: 16),
-                  SizedBox(width: 4),
-                  Text("Data"),
-                ],
-              ),
-              TextButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.edit, size: 14),
-                label: Text("Editar"),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blue,
-                  textStyle: TextStyle(fontSize: 12),
+            ),
+            SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Nome do médico",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: EdgeInsets.only(left: 22.0),
-              child: Text(
-                "31/03/2025",
-                style: TextStyle(fontSize: 13, color: Colors.black),
-              ),
-            ),
-          ),
-          SizedBox(height: 10),
-          // Horário
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(Icons.access_time, size: 16),
-                  SizedBox(width: 4),
-                  Text("Horário"),
-                ],
-              ),
-              TextButton.icon(
-                onPressed: () {},
-                icon: Icon(Icons.edit, size: 14),
-                label: Text("Editar"),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.blue,
-                  textStyle: TextStyle(fontSize: 12),
+                Text(
+                  widget.especialidade,
+                  style: TextStyle(color: Colors.grey),
                 ),
-              ),
-            ],
-          ),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: Padding(
-              padding: EdgeInsets.only(left: 22.0),
-              child: Text(
-                "14:00",
-                style: TextStyle(fontSize: 13, color: Colors.grey),
+              ],
+            ),
+          ],
+        ),
+        SizedBox(height: 20),
+        // Data
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              spacing: 5,
+              children: [
+                Icon(Icons.calendar_today, size: 20),
+                Text("Data", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+              ],
+            ),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context, widget.data_consulta);
+                showModalBottomSheet(
+                  context: context,
+                  isDismissible: false,
+                  isScrollControlled: true,
+                  builder:
+                      (context) => BottomSheetContainer(
+                        "Escolha uma data",
+                        EscolherDataDisponivel(),
+                      ),
+                );
+              },
+              icon: Icon(Icons.edit, size: 16, color: Colors.white,),
+              label: Text("Editar", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),),
+              style: TextButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 160, 173, 243),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.only(left: 22.0),
+            child: Text(
+              "${widget.data_consulta.day}/${widget.data_consulta.month}/${widget.data_consulta.year}",
+              style: TextStyle(fontSize: 13, color: Colors.black),
+            ),
           ),
-          SizedBox(height: 10),
-          // Checkbox
-          Row(
-            children: [
-              Icon(Icons.radio_button_checked, color: Colors.blue, size: 16),
-              SizedBox(width: 6),
-              Expanded(child: Text("Desejo receber uma confirmação por SMS.")),
-            ],
-          ),
-          SizedBox(height: 20),
-          // Botões
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.blue,
-              minimumSize: Size(double.infinity, 45),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+        ),
+        SizedBox(height: 10),
+        // Horário
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              spacing: 5,
+              children: [
+                Icon(Icons.access_time, size: 20),
+                Text("Horário", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              ],
+            ),
+            TextButton.icon(
+              onPressed: () {
+                Navigator.pop(context, widget.hora_consulta);
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  builder:
+                      (context) => BottomSheetContainer(
+                        "Escolha um horário",
+                        const EscolherHorarioDisponivel(),
+                        voltarParaBottomSheetAnterior: () {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            builder:
+                                (context) => BottomSheetContainer(
+                                  "Escolha uma data",
+                                  EscolherDataDisponivel(),
+                                ),
+                          );
+                        },
+                      ),
+                );
+              },
+              icon: Icon(Icons.edit, size: 16,color: Colors.white,),
+              label: Text("Editar", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),),
+              style: TextButton.styleFrom(
+                backgroundColor: Color.fromARGB(255, 160, 173, 243),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
-            child: Text("Agendar consulta"),
-          ),
-          SizedBox(height: 10),
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              minimumSize: Size(double.infinity, 45),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
+          ],
+        ),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: Padding(
+            padding: EdgeInsets.only(left: 22.0),
+            child: Text(
+              widget.hora_consulta.toString(),
+              style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
-            child: Text("Cancelar"),
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: 10),
+        Row(
+          children: [
+            Icon(Icons.radio_button_checked, color: Colors.blue, size: 16),
+            SizedBox(width: 6),
+            Expanded(child: Text("Desejo receber uma confirmação por SMS.")),
+          ],
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromARGB(255, 64, 91, 230),
+            minimumSize: Size(double.infinity, 45),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text("Agendar consulta", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromARGB(255, 230, 64, 67),
+            minimumSize: Size(double.infinity, 45),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+          child: Text("Cancelar", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+        ),
+      ],
     );
   }
 }

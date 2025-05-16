@@ -1,6 +1,4 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -29,44 +27,51 @@ class LoginFormState extends State<LoginForm> {
         key: _formKey,
         child: Column(
           children: [
-            SizedBox(
-              height: 70,
-              child: TextFormField(
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 160, 173, 243),
-                ),
-                validator: (String? value) =>
-                !valueValidator(value) ? "Insira o email." : null,
-                controller: emailController,
-                decoration: const InputDecoration(
-                  fillColor: Color.fromARGB(255, 244, 245, 254),
-                  filled: true,
-                  hintText: 'E-mail',
-                  alignLabelWithHint: true,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-                  label: Text(
-                    "E-mail",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 160, 173, 243),
-                      fontSize: 16,
+            Padding(
+              padding: EdgeInsets.only(bottom: 8),
+              child: SizedBox(
+                height: 70,
+                child: TextFormField(
+                  style: const TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                  ),
+                  validator:
+                      (String? value) =>
+                  !valueValidator(value) ? "Insira o e-mail" : null,
+                  controller: emailController,
+                  decoration: const InputDecoration(
+                    fillColor: Color.fromARGB(255, 244, 245, 254),
+                    filled: true,
+                    hintText: 'Ex.: John@Doe.com',
+                    alignLabelWithHint: true,
+                    isDense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 16,
                     ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                    label: Text(
+                      "E-mail",
+                      style: TextStyle(
+                        color: Color.fromARGB(255, 160, 173, 243),
+                        fontSize: 18,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.red),
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide.none,
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
                   ),
                 ),
               ),

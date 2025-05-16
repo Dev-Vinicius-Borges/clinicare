@@ -1,9 +1,9 @@
-import 'package:clini_care/components/Forms/registro/RegistroDadosPessoaisForm.dart';
-import 'package:clini_care/components/registro/RegistroDadosPessoais.dart';
 import 'package:clini_care/components/registro/RegistroEndereco.dart';
 import 'package:flutter/material.dart';
 
 class RegistroEnderecoPage extends StatelessWidget{
+  const RegistroEnderecoPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

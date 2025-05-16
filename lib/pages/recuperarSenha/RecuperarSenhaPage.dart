@@ -2,6 +2,8 @@ import 'package:clini_care/components/RecuperarSenha/RecuperarSenha.dart';
 import 'package:flutter/material.dart';
 
 class RecuperarSenhaPage extends StatelessWidget{
+  const RecuperarSenhaPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

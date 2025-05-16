@@ -1,8 +1,9 @@
-import 'package:clini_care/components/Forms/registro/RegistroDadosPessoaisForm.dart';
 import 'package:clini_care/components/registro/RegistroDadosPessoais.dart';
 import 'package:flutter/material.dart';
 
 class RegistroDadosPessoaisPage extends StatelessWidget{
+  const RegistroDadosPessoaisPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

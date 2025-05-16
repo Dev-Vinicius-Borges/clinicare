@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 class PrincipalContainer extends StatefulWidget {
   final Widget children;
 
-  PrincipalContainer(this.children);
+  const PrincipalContainer(this.children, {super.key});
 
   @override
   State<PrincipalContainer> createState() => _PrincipalContainerState();

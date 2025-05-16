@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BarraNavegacao extends StatelessWidget {
+  const BarraNavegacao({super.key});
+
   @override
   Widget build(BuildContext context) {
     final rotaAtual = ModalRoute.of(context)?.settings.name;

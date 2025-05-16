@@ -1,7 +1,4 @@
-import 'package:clini_care/components/Forms/LoginForm.dart';
 import 'package:clini_care/components/Forms/RecuperarSenha/AlterarSenhaForm.dart';
-import 'package:clini_care/components/Forms/RecuperarSenha/RecuperarSenhaForm.dart';
-import 'package:clini_care/components/Forms/registro/RegistroDadosPessoaisForm.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

@@ -1,9 +1,9 @@
-import 'package:clini_care/components/Forms/RecuperarSenha/ReceberCodigoForm.dart';
 import 'package:clini_care/components/RecuperarSenha/ReceberCodigo.dart';
-import 'package:clini_care/components/RecuperarSenha/RecuperarSenha.dart';
 import 'package:flutter/material.dart';
 
 class ReceberCodigoPage extends StatelessWidget{
+  const ReceberCodigoPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

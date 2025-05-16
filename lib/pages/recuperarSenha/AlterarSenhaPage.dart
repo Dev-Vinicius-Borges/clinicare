@@ -1,9 +1,9 @@
-import 'package:clini_care/components/Forms/RecuperarSenha/AlterarSenhaForm.dart';
 import 'package:clini_care/components/RecuperarSenha/AlterarSenha.dart';
-import 'package:clini_care/components/RecuperarSenha/RecuperarSenha.dart';
 import 'package:flutter/material.dart';
 
 class AlterarSenhaPage extends StatelessWidget{
+  const AlterarSenhaPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

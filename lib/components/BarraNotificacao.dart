@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class BarraNotificacao extends StatefulWidget {
+  const BarraNotificacao({super.key});
+
   @override
   _BarraNotificacaoState createState() => _BarraNotificacaoState();
 }

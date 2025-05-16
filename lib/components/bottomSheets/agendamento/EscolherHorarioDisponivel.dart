@@ -1,6 +1,5 @@
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/ConfirmarAgendamento.dart';
-import 'package:clini_care/components/bottomSheets/agendamento/EscolherDataDisponivel.dart';
 import 'package:flutter/material.dart';
 
 class EscolherHorarioDisponivel extends StatefulWidget {

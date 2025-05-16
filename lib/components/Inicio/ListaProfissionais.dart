@@ -10,6 +10,8 @@ class ListaProfissionais extends StatelessWidget {
     {'id': 5, 'nome': 'Médico 3', 'especialidade': 'Especialidade 3'},
   ];
 
+  ListaProfissionais({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Column(

@@ -1,16 +1,14 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class RecuperarSenhaForm extends StatefulWidget {
-  const RecuperarSenhaForm({super.key});
+class ReceberCodigoForm extends StatefulWidget {
+  const ReceberCodigoForm({super.key});
 
   @override
-  State<RecuperarSenhaForm> createState() => RecuperarSenhaFormState();
+  State<ReceberCodigoForm> createState() => ReceberCodigoFormState();
 }
 
-class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
-  TextEditingController emailController = TextEditingController();
+class ReceberCodigoFormState extends State<ReceberCodigoForm> {
+  TextEditingController codigoController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
@@ -37,17 +35,17 @@ class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
                     color: Color.fromARGB(255, 160, 173, 243),
                   ),
                   validator: (String? value) =>
-                  !valueValidator(value) ? "Insira o e-mail." : null,
-                  controller: emailController,
+                  !valueValidator(value) ? "Insira o código." : null,
+                  controller: codigoController,
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
                     filled: true,
-                    hintText: 'Insira seu e-mail vinculado a clinicare.',
+                    hintText: 'EX.: XXX-XXX',
                     alignLabelWithHint: true,
                     isDense: true,
                     contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
                     label: Text(
-                      "E-mail",
+                      "Código",
                       style: TextStyle(
                         color: Color.fromARGB(255, 160, 173, 243),
                         fontSize: 18,
@@ -78,7 +76,7 @@ class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
               height: 60,
               child: TextButton(
                 onPressed: () async {
-                  Navigator.pushNamed(context, '/recuperar_senha/receber_codigo');
+                  Navigator.pushNamed(context, '/recuperar_senha/criar_nova_senha');
                   if (_formKey.currentState!.validate()) {
 
                   } else {
@@ -98,7 +96,7 @@ class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
                   ),
                 ),
                 child: Text(
-                  "Receber código",
+                  "Validar código",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,

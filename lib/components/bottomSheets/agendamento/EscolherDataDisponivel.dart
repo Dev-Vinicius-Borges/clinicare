@@ -16,8 +16,6 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
   DateTime? dataEscolhida;
 
   final List<DateTime> _datasDisponiveis = [
-    DateTime(2025, 5, 14),
-    DateTime(2025, 5, 18),
     DateTime(2025, 5, 22),
     DateTime(2025, 5, 24),
     DateTime(2025, 5, 31),
@@ -32,7 +30,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -61,8 +59,8 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                 color: Color.fromARGB(255, 88, 98, 151),
                 shape: BoxShape.circle,
               ),
-              weekendTextStyle: const TextStyle(color: Colors.black),
-              disabledTextStyle: const TextStyle(color: Colors.grey),
+              weekendTextStyle: TextStyle(color: Colors.black),
+              disabledTextStyle: TextStyle(color: Colors.grey),
             ),
             calendarBuilders: CalendarBuilders(
               defaultBuilder: (context, day, _) {
@@ -73,10 +71,10 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                         color: Color.fromARGB(255, 184, 194, 246),
                         shape: BoxShape.circle,
                       ),
-                      padding: const EdgeInsets.all(8),
+                      padding: EdgeInsets.all(8),
                       child: Text(
                         '${day.day}',
-                        style: const TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.white),
                       ),
                     ),
                   );
@@ -84,14 +82,14 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                   return Center(
                     child: Text(
                       '${day.day}',
-                      style: const TextStyle(color: Colors.grey),
+                      style: TextStyle(color: Colors.grey),
                     ),
                   );
                 }
               },
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: 16),
           Row(
             children: [
               Column(
@@ -117,7 +115,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                   ),
                 ],
               ),
-              const Spacer(),
+              Spacer(),
               SizedBox(
                 width: 195,
                 height: 60,
@@ -133,7 +131,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                               builder:
                                   (context) => BottomSheetContainer(
                                     "Escolha um horário",
-                                    const EscolherHorarioDisponivel(),
+                                    EscolherHorarioDisponivel(),
                                     voltarParaBottomSheetAnterior: () {
                                       showModalBottomSheet(
                                         context: context,
@@ -141,7 +139,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                                         builder:
                                             (context) => BottomSheetContainer(
                                               "Escolha uma data",
-                                              const EscolherDataDisponivel(),
+                                              EscolherDataDisponivel(),
                                             ),
                                       );
                                     },
@@ -150,11 +148,11 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                           }
                           : null,
                   style: ButtonStyle(
-                    elevation: const WidgetStatePropertyAll<double>(0),
+                    elevation: WidgetStatePropertyAll<double>(0),
                     backgroundColor: WidgetStatePropertyAll<Color>(
                       dataEscolhida != null
-                          ? const Color.fromARGB(255, 64, 91, 230)
-                          : const Color.fromARGB(255, 180, 190, 250),
+                          ? Color.fromARGB(255, 64, 91, 230)
+                          : Color.fromARGB(255, 180, 190, 250),
                     ),
                     shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
@@ -162,7 +160,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                       ),
                     ),
                   ),
-                  child: const Text(
+                  child: Text(
                     'Confirmar',
                     style: TextStyle(color: Colors.white),
                   ),
