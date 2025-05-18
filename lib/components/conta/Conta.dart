@@ -2,7 +2,12 @@ import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/Forms/editarInformacoes/EditarDadosPessoaisForm.dart';
 import 'package:clini_care/components/Forms/editarInformacoes/EditarEnderecoForm.dart';
 import 'package:clini_care/components/Forms/editarInformacoes/EditarSenhaForm.dart';
+import 'package:clini_care/server/models/ClienteModel.dart';
+import 'package:clini_care/server/models/InformacoesClientesCompletoModel.dart';
+import 'package:clini_care/server/models/RespostaModel.dart';
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class Conta extends StatefulWidget {
   const Conta({super.key});
@@ -12,25 +17,13 @@ class Conta extends StatefulWidget {
 }
 
 class _ContaState extends State<Conta> {
-  late String nome;
-  late String email;
-  late int cep;
-  late String rua;
-  late String numero;
-  late String cidade;
-  late String senha;
+  late int id_usuario;
+  late InformacoesClientesCompletosModel cliente;
 
   @override
   void initState() {
     super.initState();
-
-    nome = "John";
-    email = "John@doe.com";
-    cep = 12345678;
-    rua = "Rua x";
-    numero = "99";
-    cidade = "Cidade X";
-    senha = "********";
+    id_usuario = Provider.of<GerenciadorDeSessao>(context, listen: false).idUsuario!;
   }
 
   Widget secao(String title, {IconData? icon, required VoidCallback onEdit}) {
@@ -138,8 +131,8 @@ class _ContaState extends State<Conta> {
                     );
                   },
                 ),
-                campo("Nome", nome),
-                campo("Email", email, isGray: true),
+                campo("Nome", cliente.nome),
+                campo("Email", cliente.email, isGray: true),
               ],
             ),
           ),
@@ -160,10 +153,10 @@ class _ContaState extends State<Conta> {
                     ),
                   );
                 }),
-                campo("CEP", cep.toString()),
-                campo("Rua", rua),
-                campo("Número", numero),
-                campo("Cidade", cidade, isGray: true),
+                campo("CEP", cliente.cep.toString()),
+                campo("Rua", cliente.rua),
+                campo("Número", cliente.numero),
+                campo("Cidade", cliente.cidade, isGray: true),
               ],
             ),
           ),
@@ -184,7 +177,7 @@ class _ContaState extends State<Conta> {
                     ),
                   );
                 }),
-                campo("Senha", senha, isGray: true),
+                campo("Senha", cliente.senha, isGray: true),
               ],
             ),
           ),
