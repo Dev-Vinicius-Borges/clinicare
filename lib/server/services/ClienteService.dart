@@ -251,6 +251,7 @@ class ClienteService implements IClienteInterface {
                         .toIso8601String()
                         .split('T')[0],
                 "senha": criarClienteDto.senha,
+                "fk_id_telefone": criarClienteDto.telefone
               })
               .select()
               .single();
