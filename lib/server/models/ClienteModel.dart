@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class ClienteModel {
   int id;
   String nome;
@@ -5,6 +7,7 @@ class ClienteModel {
   DateTime data_nascimento;
   String senha;
   String foto_cliente;
+  File? fotoArquivo;
   int telefone;
   int endereco;
 
@@ -15,6 +18,7 @@ class ClienteModel {
     required this.data_nascimento,
     required this.senha,
     required this.foto_cliente,
+    this.fotoArquivo,
     required this.telefone,
     required this.endereco,
   });

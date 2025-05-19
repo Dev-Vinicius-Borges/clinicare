@@ -1,3 +1,5 @@
+import 'dart:io';
+
 class AtualizarClienteDto {
   int id;
   String nome;
@@ -7,6 +9,7 @@ class AtualizarClienteDto {
   String foto_cliente;
   int telefone;
   int endereco;
+  File? fotoArquivo;
 
   AtualizarClienteDto({
     required this.id,
@@ -17,5 +20,6 @@ class AtualizarClienteDto {
     required this.foto_cliente,
     required this.telefone,
     required this.endereco,
+    this.fotoArquivo
   });
 }
