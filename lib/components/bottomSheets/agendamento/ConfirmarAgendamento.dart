@@ -1,26 +1,44 @@
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/EscolherDataDisponivel.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/EscolherHorarioDisponivel.dart';
+import 'package:clini_care/server/models/MedicoModel.dart';
+import 'package:clini_care/server/services/MedicoService.dart';
 import 'package:flutter/material.dart';
 
 class ConfirmarAgendamento extends StatefulWidget {
   final int id_profissional;
   final String especialidade;
   final DateTime data_consulta;
-  final int hora_consulta;
+  final TimeOfDay hora_consulta;
 
   const ConfirmarAgendamento(
     this.id_profissional,
     this.especialidade,
     this.data_consulta,
-    this.hora_consulta, {super.key}
-  );
+    this.hora_consulta, {
+    super.key,
+  });
 
   @override
   State<ConfirmarAgendamento> createState() => _ConfirmarAgendamentoState();
 }
 
 class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
+  late MedicoModel medico;
+
+  void buscarInfoMedico() async {
+    var busca = await MedicoService().buscarMedicoPorId(widget.id_profissional);
+    setState(() {
+      medico = busca.Dados!;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    buscarInfoMedico();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -28,18 +46,25 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
       children: [
         Row(
           children: [
-            CircleAvatar(
-              radius: 25,
-              backgroundImage: AssetImage(
-                'assets/doctor.jpg',
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: SizedBox(
+                width: 100,
+                height: 100,
+                child: Image.network(
+                  medico.foto_medico!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) => Icon(Icons.person, size: 100),
+                ),
               ),
             ),
+
             SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  "Nome do médico",
+                  medico.nome,
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                 ),
                 Text(
@@ -59,7 +84,10 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
               spacing: 5,
               children: [
                 Icon(Icons.calendar_today, size: 20),
-                Text("Data", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),),
+                Text(
+                  "Data",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             TextButton.icon(
@@ -72,12 +100,19 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
                   builder:
                       (context) => BottomSheetContainer(
                         "Escolha uma data",
-                        EscolherDataDisponivel(),
+                        EscolherDataDisponivel(widget.id_profissional),
                       ),
                 );
               },
-              icon: Icon(Icons.edit, size: 16, color: Colors.white,),
-              label: Text("Editar", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),),
+              icon: Icon(Icons.edit, size: 16, color: Colors.white),
+              label: Text(
+                "Editar",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               style: TextButton.styleFrom(
                 backgroundColor: Color.fromARGB(255, 160, 173, 243),
                 shape: RoundedRectangleBorder(
@@ -107,7 +142,10 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
               spacing: 5,
               children: [
                 Icon(Icons.access_time, size: 20),
-                Text("Horário", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  "Horário",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ],
             ),
             TextButton.icon(
@@ -119,7 +157,10 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
                   builder:
                       (context) => BottomSheetContainer(
                         "Escolha um horário",
-                        const EscolherHorarioDisponivel(),
+                        EscolherHorarioDisponivel(
+                          id_profissional: widget.id_profissional,
+                          dataEscolhida: widget.data_consulta,
+                        ),
                         voltarParaBottomSheetAnterior: () {
                           showModalBottomSheet(
                             context: context,
@@ -127,15 +168,24 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
                             builder:
                                 (context) => BottomSheetContainer(
                                   "Escolha uma data",
-                                  EscolherDataDisponivel(),
+                                  EscolherDataDisponivel(
+                                    widget.id_profissional,
+                                  ),
                                 ),
                           );
                         },
                       ),
                 );
               },
-              icon: Icon(Icons.edit, size: 16,color: Colors.white,),
-              label: Text("Editar", style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold),),
+              icon: Icon(Icons.edit, size: 16, color: Colors.white),
+              label: Text(
+                "Editar",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               style: TextButton.styleFrom(
                 backgroundColor: Color.fromARGB(255, 160, 173, 243),
                 shape: RoundedRectangleBorder(
@@ -151,7 +201,7 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
           child: Padding(
             padding: EdgeInsets.only(left: 22.0),
             child: Text(
-              widget.hora_consulta.toString(),
+              '${widget.hora_consulta.hour.toString().padLeft(2, '0')}:${widget.hora_consulta.minute.toString().padLeft(2, '0')}',
               style: TextStyle(fontSize: 13, color: Colors.grey),
             ),
           ),
@@ -176,7 +226,14 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: Text("Agendar consulta", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
+          child: Text(
+            "Agendar consulta",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         SizedBox(height: 10),
         ElevatedButton(
@@ -190,7 +247,14 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
               borderRadius: BorderRadius.circular(8),
             ),
           ),
-          child: Text("Cancelar", style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+          child: Text(
+            "Cancelar",
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
       ],
     );
