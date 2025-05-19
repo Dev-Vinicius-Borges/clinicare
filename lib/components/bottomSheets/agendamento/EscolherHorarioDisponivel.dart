@@ -1,9 +1,21 @@
+import 'dart:io';
+
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/ConfirmarAgendamento.dart';
+import 'package:clini_care/server/models/MedicoModel.dart';
+import 'package:clini_care/server/services/HorariosDisponiveisMedicosService.dart';
+import 'package:clini_care/server/services/MedicoService.dart';
 import 'package:flutter/material.dart';
 
 class EscolherHorarioDisponivel extends StatefulWidget {
-  const EscolherHorarioDisponivel({super.key});
+  final int id_profissional;
+  final DateTime dataEscolhida;
+
+  EscolherHorarioDisponivel({
+    super.key,
+    required this.dataEscolhida,
+    required this.id_profissional,
+  });
 
   @override
   State<EscolherHorarioDisponivel> createState() =>
@@ -11,24 +23,40 @@ class EscolherHorarioDisponivel extends StatefulWidget {
 }
 
 class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
-  final List<String> horariosDisponiveis = [
-    '08:00',
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-  ];
+  List<TimeOfDay> horariosDisponiveis = [];
+  late MedicoModel medico;
+  TimeOfDay? horarioSelecionado;
 
-  String? horarioSelecionado;
+  void buscarHorariosDisponiveis() async {
+    var resposta = await HorariosDisponiveisMedicosService()
+        .buscarHorariosPorIdMedico(widget.id_profissional);
+
+    if (resposta.Status == HttpStatus.ok && resposta.Dados != null) {
+      setState(() {
+        horariosDisponiveis =
+            resposta.Dados!.map((horario) => horario.horario).toSet().toList();
+      });
+    }
+  }
+
+  void buscarInformacoesMedico() async {
+    var consulta = await MedicoService().buscarMedicoPorId(
+      widget.id_profissional,
+    );
+    medico = consulta.Dados!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    buscarHorariosDisponiveis();
+    buscarInformacoesMedico();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(16),
+      padding: EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -36,7 +64,7 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
             spacing: 12,
             runSpacing: 12,
             children:
-                horariosDisponiveis.map((horario) {
+                horariosDisponiveis.map((TimeOfDay horario) {
                   final selecionado = horario == horarioSelecionado;
                   return GestureDetector(
                     onTap: () {
@@ -45,19 +73,17 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                       });
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
+                      padding: EdgeInsets.symmetric(
                         horizontal: 18,
                         vertical: 12,
                       ),
                       decoration: BoxDecoration(
                         color:
-                            selecionado
-                                ? const Color(0xFF585E97)
-                                : const Color(0xFFE5E7FF),
+                            selecionado ? Color(0xFF585E97) : Color(0xFFE5E7FF),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
-                        horario,
+                        '${horario.hour.toString().padLeft(2, '0')}:${horario.minute.toString().padLeft(2, '0')}',
                         style: TextStyle(
                           color: selecionado ? Colors.white : Colors.black54,
                           fontWeight: FontWeight.bold,
@@ -68,23 +94,25 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                   );
                 }).toList(),
           ),
-          const SizedBox(height: 24),
+          SizedBox(height: 24),
           Row(
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     "Horário",
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   Text(
-                    horarioSelecionado ?? "--:--",
-                    style: const TextStyle(fontSize: 20, color: Colors.grey),
+                    horarioSelecionado != null
+                        ? '${horarioSelecionado!.hour.toString().padLeft(2, '0')}:${horarioSelecionado!.minute.toString().padLeft(2, '0')}'
+                        : "--:--",
+                    style: TextStyle(fontSize: 20, color: Colors.grey),
                   ),
                 ],
               ),
-              const Spacer(),
+              Spacer(),
               SizedBox(
                 width: 160,
                 height: 55,
@@ -101,10 +129,10 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                                   (context) => BottomSheetContainer(
                                     "Confirme o agendamento",
                                     ConfirmarAgendamento(
-                                      1,
-                                      "Especialidade 1",
-                                      DateTime(2025, 05, 14),
-                                      14,
+                                      medico.id,
+                                      medico.especialidade,
+                                      widget.dataEscolhida,
+                                      horarioSelecionado!,
                                     ),
                                     voltarParaBottomSheetAnterior: () {
                                       showModalBottomSheet(
@@ -114,7 +142,12 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                                         builder:
                                             (context) => BottomSheetContainer(
                                               "Escolha um horário",
-                                              const EscolherHorarioDisponivel(),
+                                              EscolherHorarioDisponivel(
+                                                id_profissional:
+                                                    widget.id_profissional,
+                                                dataEscolhida:
+                                                    widget.dataEscolhida,
+                                              ),
                                             ),
                                       );
                                     },
@@ -127,18 +160,18 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                       states,
                     ) {
                       if (states.contains(WidgetState.disabled)) {
-                        return const Color(0xFFBFC9FF); // desativado
+                        return Color(0xFFBFC9FF); // desativado
                       }
-                      return const Color(0xFF405BE6); // ativo
+                      return Color(0xFF405BE6); // ativo
                     }),
                     shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
                       RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
                     ),
-                    elevation: const WidgetStatePropertyAll(0),
+                    elevation: WidgetStatePropertyAll(0),
                   ),
-                  child: const Text(
+                  child: Text(
                     "Confirmar",
                     style: TextStyle(color: Colors.white, fontSize: 16),
                   ),

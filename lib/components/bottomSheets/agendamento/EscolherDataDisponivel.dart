@@ -1,11 +1,16 @@
+import 'dart:io';
+
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/EscolherHorarioDisponivel.dart';
+import 'package:clini_care/server/services/HorariosDisponiveisMedicosService.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:intl/intl.dart';
 
 class EscolherDataDisponivel extends StatefulWidget {
-  const EscolherDataDisponivel({super.key});
+  final int id_profissional;
+
+  const EscolherDataDisponivel(this.id_profissional, {super.key});
 
   @override
   State<EscolherDataDisponivel> createState() => _EscolherDataDisponivelState();
@@ -14,18 +19,63 @@ class EscolherDataDisponivel extends StatefulWidget {
 class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
   DateTime dataInicial = DateTime.now();
   DateTime? dataEscolhida;
+  final List<DateTime> _datasDisponiveis = [];
 
-  final List<DateTime> _datasDisponiveis = [
-    DateTime(2025, 5, 22),
-    DateTime(2025, 5, 24),
-    DateTime(2025, 5, 31),
-  ];
+  void buscarDatasDisponiveis() async {
+    var resposta = await HorariosDisponiveisMedicosService().buscarHorariosPorIdMedico(widget.id_profissional);
+
+    if (resposta.Status == HttpStatus.ok) {
+      setState(() {
+        _datasDisponiveis.clear();
+        resposta.Dados?.forEach((horario) {
+          _datasDisponiveis.addAll(_todasOcorrenciasDoDia(horario.dia_semana));
+        });
+      });
+    }
+  }
+
+
+  List<DateTime> _todasOcorrenciasDoDia(String diaSemana) {
+    final dias = {
+      'Domingo': DateTime.sunday,
+      'Segunda': DateTime.monday,
+      'Terca': DateTime.tuesday,
+      'Quarta': DateTime.wednesday,
+      'Quinta': DateTime.thursday,
+      'Sexta': DateTime.friday,
+      'Sabado': DateTime.saturday,
+    };
+
+    DateTime hoje = DateTime.now();
+    DateTime fimDoMes = DateTime(hoje.year, hoje.month + 1, 0);
+    int diaSemanaInt = dias[diaSemana] ?? DateTime.monday;
+
+    List<DateTime> datas = [];
+
+    while (hoje.isBefore(fimDoMes) || isSameDay(hoje, fimDoMes)) {
+      if (hoje.weekday == diaSemanaInt) {
+        datas.add(hoje);
+      }
+      hoje = hoje.add(Duration(days: 1));
+    }
+
+    return datas;
+  }
+
+
 
   bool dataEstaDisponivel(DateTime day) {
     return _datasDisponiveis.any(
       (d) => d.year == day.year && d.month == day.month && d.day == day.day,
     );
   }
+
+  @override
+  void initState() {
+    super.initState();
+    buscarDatasDisponiveis();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -131,7 +181,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                               builder:
                                   (context) => BottomSheetContainer(
                                     "Escolha um horário",
-                                    EscolherHorarioDisponivel(),
+                                    EscolherHorarioDisponivel(dataEscolhida: dataEscolhida!, id_profissional: widget.id_profissional,),
                                     voltarParaBottomSheetAnterior: () {
                                       showModalBottomSheet(
                                         context: context,
@@ -139,7 +189,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                                         builder:
                                             (context) => BottomSheetContainer(
                                               "Escolha uma data",
-                                              EscolherDataDisponivel(),
+                                              EscolherDataDisponivel(widget.id_profissional),
                                             ),
                                       );
                                     },

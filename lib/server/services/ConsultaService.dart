@@ -146,4 +146,38 @@ class ConsultaService implements IConsultaInterface {
 
     return resposta;
   }
+
+  @override
+  Future<RespostaModel<List<ConsultaModel>>> buscarConsultaPorIdUsuario(int id) async {
+    RespostaModel<List<ConsultaModel>> resposta = RespostaModel<List<ConsultaModel>>();
+
+    try {
+      var consultas = await _contexto
+          .from('consultas')
+          .select()
+          .eq("fk_id_cliente", id);
+
+      if(consultas.isEmpty){
+        resposta.Mensagem = "Nenhuma consulta encontrada.";
+        resposta.Status = HttpStatus.notFound;
+        return resposta;
+      }
+
+      resposta.Dados = consultas.map<ConsultaModel>((consulta) => ConsultaModel(
+        id: consulta['id_consulta'],
+        data_consulta: DateTime.parse(consulta['data_consulta']),
+        id_cliente: consulta['fk_id_cliente'],
+        id_medico: consulta['fk_id_medico'],
+      )).toList();
+
+      resposta.Mensagem = "Consultas encontradas para o usuário.";
+      resposta.Status = HttpStatus.ok;
+    } catch (err) {
+      resposta.Status = HttpStatus.internalServerError;
+      resposta.Mensagem = "Erro: $err";
+    }
+
+    return resposta;
+  }
+
 }

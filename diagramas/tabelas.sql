@@ -42,7 +42,7 @@ CREATE TABLE consultas (
 );
 
 CREATE TABLE agendas_medicos (
-  id_agenda SERIAL PRIMARY KEY,
+  id_agenda INT PRIMARY KEY DEFAULT NEXTVAL('incrementavel'),
   fk_id_medico INT NOT NULL,
   dia_semana VARCHAR(10) NOT NULL,
   horario TIME NOT NULL,
