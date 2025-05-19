@@ -263,7 +263,7 @@ class RegistroDadosPessoaisFormState extends State<RegistroDadosPessoaisForm> {
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     CriarTelefoneDto novoTelefone = new CriarTelefoneDto(
-                      numero: BigInt.parse(telefoneController.text),
+                      numero: telefoneController.text,
                     );
 
                     var criarTelefone = await TelefoneService().criarTelefone(
@@ -282,12 +282,9 @@ class RegistroDadosPessoaisFormState extends State<RegistroDadosPessoaisForm> {
                       endereco: 0,
                     );
 
+
                     var criacao = await ClienteService().criarCliente(
                       novoCliente,
-                    );
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(criacao.Mensagem.toString())),
                     );
 
                     if (criacao.Status == HttpStatus.created) {

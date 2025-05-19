@@ -1,5 +1,5 @@
 class CriarTelefoneDto {
-  BigInt numero;
+  String numero;
 
   CriarTelefoneDto({
     required this.numero,

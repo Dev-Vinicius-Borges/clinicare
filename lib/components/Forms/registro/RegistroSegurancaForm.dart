@@ -18,6 +18,7 @@ class RegistroSegurancaForm extends StatefulWidget {
 class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
   TextEditingController senhaController = TextEditingController();
   TextEditingController confirmacaoSenhaController = TextEditingController();
+  late String hashSenha;
   late int id_usuario;
 
   @override
@@ -49,6 +50,7 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
               child: SizedBox(
                 height: 70,
                 child: TextFormField(
+                  obscureText: true,
                   style: const TextStyle(
                     color: Color.fromARGB(255, 160, 173, 243),
                   ),
@@ -98,6 +100,7 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
               child: SizedBox(
                 height: 70,
                 child: TextFormField(
+                  obscureText: true,
                   style: const TextStyle(
                     color: Color.fromARGB(255, 160, 173, 243),
                   ),
@@ -112,7 +115,7 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
 
                     var bytes = utf8.encode(senhaController.text);
                     var digest = sha256.convert(bytes);
-                    senhaController.text = digest.toString();
+                    hashSenha = digest.toString();
 
                     return null;
                   },
@@ -169,7 +172,7 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
                       nome: clienteEncontrado.nome,
                       email: clienteEncontrado.email,
                       data_nascimento: clienteEncontrado.data_nascimento,
-                      senha: senhaController.text,
+                      senha: hashSenha,
                       foto_cliente: clienteEncontrado.foto_cliente,
                       telefone: clienteEncontrado.telefone,
                       endereco: clienteEncontrado.endereco,

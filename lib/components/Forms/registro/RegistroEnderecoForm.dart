@@ -307,12 +307,6 @@ class RegistroEnderecoFormState extends State<RegistroEnderecoForm> {
                     var atualizarCliente = await ClienteService()
                         .atualizarCliente(clienteAtt);
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(atualizarCliente.Mensagem.toString()),
-                      ),
-                    );
-
                     if (atualizarCliente.Status == HttpStatus.ok){
                       Navigator.pushNamed(context, "/registro/seguranca");
                     }

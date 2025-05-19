@@ -66,7 +66,7 @@ class MedicoService implements IMedicoInterface {
       var medico =
           await _contexto.from('medicos').select().eq("id_medico", id).single();
       String fotoUrl = StorageService().getImagemUrl(
-        "profissional_${medico['nome_medico']}.jpg",
+        "profissional_${medico['nome_medico'].toString().replaceAll(" ","_").toLowerCase()}.jpg",
         "profissionais",
       );
 
@@ -96,8 +96,8 @@ class MedicoService implements IMedicoInterface {
         List<String> partesNome = medico['nome_medico'].split(" ");
         String nomeArquivo =
             partesNome.length > 1
-                ? "${partesNome[0]}_${partesNome[1]}"
-                : partesNome[0];
+                ? "${partesNome[0].toLowerCase()}_${partesNome[1].toLowerCase()}"
+                : partesNome[0].toLowerCase();
 
         String fotoUrl = StorageService().getImagemUrl(
           "profissional_${nomeArquivo}.jpg",

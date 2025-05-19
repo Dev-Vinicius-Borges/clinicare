@@ -10,7 +10,7 @@ class CardProfissional extends StatefulWidget {
   final bool viradoParaEsquerda;
   final bool ultimoCard;
 
-  const CardProfissional(
+  CardProfissional(
     this.id_profissional,
     this.nome_profissional,
     this.especialidade_profissional, {
@@ -54,19 +54,19 @@ class _CardProfissionalState extends State<CardProfissional> {
                   fit: BoxFit.cover,
                   errorBuilder:
                       (context, error, stackTrace) =>
-                          const Icon(Icons.person, size: 100),
+                          Icon(Icons.person, size: 100),
                 ),
               )
               : Container(
                 color: Colors.grey,
                 alignment: Alignment.center,
-                child: const Icon(Icons.person, size: 100),
+                child: Icon(Icons.person, size: 100),
               ),
     );
 
     final texto = Expanded(
       child: Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment:
               widget.viradoParaEsquerda
@@ -82,7 +82,7 @@ class _CardProfissionalState extends State<CardProfissional> {
               children: [
                 Text(
                   widget.nome_profissional,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.black,
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
@@ -111,19 +111,19 @@ class _CardProfissionalState extends State<CardProfissional> {
                     builder: (context) {
                       return BottomSheetContainer(
                         'Escolha uma data',
-                        EscolherDataDisponivel(),
+                        EscolherDataDisponivel(widget.id_profissional),
                       );
                     },
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 64, 91, 230),
+                  backgroundColor: Color.fromARGB(255, 64, 91, 230),
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                child: const Text(
+                child: Text(
                   "Agendar consulta",
                   style: TextStyle(
                     color: Colors.white,
@@ -141,7 +141,7 @@ class _CardProfissionalState extends State<CardProfissional> {
     return Padding(
       padding:
           widget.ultimoCard
-              ? const EdgeInsets.only(bottom: 136)
+              ? EdgeInsets.only(bottom: 136)
               : EdgeInsets.zero,
       child: Container(
         width: double.infinity,
@@ -154,7 +154,7 @@ class _CardProfissionalState extends State<CardProfissional> {
               color: Colors.black.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 8,
-              offset: const Offset(0, 4),
+              offset: Offset(0, 4),
             ),
           ],
         ),

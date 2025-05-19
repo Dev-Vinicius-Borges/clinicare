@@ -19,7 +19,8 @@ class _ListaProfissionaisState extends State<ListaProfissionais> {
   }
 
   Future<void> carregarProfissionais() async {
-    List<Map<String, dynamic>> lista = await MedicoService().buscarListaProfissionais();
+    List<Map<String, dynamic>> lista =
+        await MedicoService().buscarListaProfissionais();
     setState(() {
       profissionais = lista;
     });
@@ -39,25 +40,26 @@ class _ListaProfissionaisState extends State<ListaProfissionais> {
           ),
         ),
         Expanded(
-          child: profissionais.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : ListView.builder(
-            itemCount: profissionais.length,
-            itemBuilder: (BuildContext context, int index) {
-              final profissional = profissionais[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: CardProfissional(
-                  profissional['id'],
-                  profissional['nome'],
-                  profissional['especialidade'],
-                  viradoParaEsquerda: index % 2 == 0,
-                  ultimoCard: index == profissionais.length - 1,
-                  fotoUrl: profissional['foto'],
-                ),
-              );
-            },
-          ),
+          child:
+              profissionais.isEmpty
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                    itemCount: profissionais.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final profissional = profissionais[index];
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: CardProfissional(
+                          profissional['id'],
+                          profissional['nome'],
+                          profissional['especialidade'],
+                          viradoParaEsquerda: index % 2 == 0,
+                          ultimoCard: index == profissionais.length - 1,
+                          fotoUrl: profissional['foto'],
+                        ),
+                      );
+                    },
+                  ),
         ),
       ],
     );
