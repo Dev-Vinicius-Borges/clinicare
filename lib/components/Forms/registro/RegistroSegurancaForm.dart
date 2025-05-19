@@ -1,16 +1,32 @@
+import 'dart:io';
+
+import 'package:clini_care/server/Dtos/cliente/AtualizarClienteDto.dart';
+import 'package:clini_care/server/services/ClienteService.dart';
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 
 class RegistroSegurancaForm extends StatefulWidget {
   const RegistroSegurancaForm({super.key});
 
   @override
-  State<RegistroSegurancaForm> createState() =>
-      RegistroSegurancaFormState();
+  State<RegistroSegurancaForm> createState() => RegistroSegurancaFormState();
 }
 
 class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
   TextEditingController senhaController = TextEditingController();
   TextEditingController confirmacaoSenhaController = TextEditingController();
+  late int id_usuario;
+
+  @override
+  void initState() {
+    super.initState();
+
+    id_usuario =
+        Provider.of<GerenciadorDeSessao>(context, listen: false).idUsuario!;
+  }
 
   final _formKey = GlobalKey<FormState>();
 
@@ -38,7 +54,7 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
                   ),
                   validator:
                       (String? value) =>
-                  !valueValidator(value) ? "Insira a senha" : null,
+                          !valueValidator(value) ? "Insira a senha" : null,
                   controller: senhaController,
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -85,9 +101,21 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
                   style: const TextStyle(
                     color: Color.fromARGB(255, 160, 173, 243),
                   ),
-                  validator:
-                      (String? value) =>
-                  !valueValidator(value) ? "Insira a confirmação da senha" : null,
+                  validator: (String? value) {
+                    if (!valueValidator(value)) {
+                      return "Insira a confirmação da senha.";
+                    }
+
+                    if (value != senhaController.text) {
+                      return "Senhas não conferem.";
+                    }
+
+                    var bytes = utf8.encode(senhaController.text);
+                    var digest = sha256.convert(bytes);
+                    senhaController.text = digest.toString();
+
+                    return null;
+                  },
                   controller: confirmacaoSenhaController,
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -131,8 +159,32 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
               height: 60,
               child: TextButton(
                 onPressed: () async {
-                  Navigator.pushNamed(context, '/inicio');
                   if (_formKey.currentState!.validate()) {
+                    var clienteEncontrado = await ClienteService()
+                        .buscarClientePorId(id_usuario)
+                        .then((data) => data.Dados!);
+
+                    AtualizarClienteDto atualizacaoCliente = new AtualizarClienteDto(
+                      id: id_usuario,
+                      nome: clienteEncontrado.nome,
+                      email: clienteEncontrado.email,
+                      data_nascimento: clienteEncontrado.data_nascimento,
+                      senha: senhaController.text,
+                      foto_cliente: clienteEncontrado.foto_cliente,
+                      telefone: clienteEncontrado.telefone,
+                      endereco: clienteEncontrado.endereco,
+                    );
+
+                    var atualizacao = await ClienteService().atualizarCliente(atualizacaoCliente);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(atualizacao.Mensagem.toString())),
+                    );
+
+                    if(atualizacao.Status == HttpStatus.ok){
+                      Navigator.pushNamed(context, "/inicio");
+                    }
+
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Preencha todos os campos.")),

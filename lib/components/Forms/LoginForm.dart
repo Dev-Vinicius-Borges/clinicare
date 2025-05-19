@@ -1,4 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:clini_care/server/Dtos/cliente/LoginDto.dart';
+import 'package:clini_care/server/services/ClienteService.dart';
+import 'package:clini_care/server/session/configuracao.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -37,7 +45,7 @@ class LoginFormState extends State<LoginForm> {
                   ),
                   validator:
                       (String? value) =>
-                  !valueValidator(value) ? "Insira o e-mail" : null,
+                          !valueValidator(value) ? "Insira o e-mail" : null,
                   controller: emailController,
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -84,8 +92,9 @@ class LoginFormState extends State<LoginForm> {
                   style: const TextStyle(
                     color: Color.fromARGB(255, 160, 173, 243),
                   ),
-                  validator: (String? value) =>
-                  !valueValidator(value) ? "Insira a senha." : null,
+                  validator:
+                      (String? value) =>
+                          !valueValidator(value) ? "Insira a senha." : null,
                   controller: senhaController,
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -93,7 +102,10 @@ class LoginFormState extends State<LoginForm> {
                     hintText: '********',
                     alignLabelWithHint: true,
                     isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 16,
+                    ),
                     label: Text(
                       "Senha",
                       style: TextStyle(
@@ -127,7 +139,27 @@ class LoginFormState extends State<LoginForm> {
               child: TextButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
+                    var bytes = utf8.encode(senhaController.text);
+                    var digest = sha256.convert(bytes);
 
+                    LoginDto formLogin = new LoginDto(
+                      email: emailController.text,
+                      senha: digest.toString(),
+                    );
+
+                    var login = await ClienteService().fazerLogin(formLogin);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(login.Mensagem.toString())),
+                    );
+
+                    if (login.Status == HttpStatus.accepted) {
+                      Provider.of<GerenciadorDeSessao>(
+                        context,
+                        listen: false,
+                      ).setIdUsuario(login.Dados!.id);
+                      Navigator.pushNamed(context, "/inicio");
+                    }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Preencha todos os campos.")),
@@ -164,10 +196,14 @@ class LoginFormState extends State<LoginForm> {
                       Navigator.pushNamed(context, '/recuperar_senha');
                     },
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+                      padding: WidgetStateProperty.all<EdgeInsets>(
+                        EdgeInsets.zero,
+                      ),
                       minimumSize: WidgetStateProperty.all<Size>(Size(0, 0)),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent),
+                      overlayColor: WidgetStateProperty.all<Color>(
+                        Colors.transparent,
+                      ),
                     ),
                     child: const Text(
                       "Esqueceu a senha?",
@@ -199,10 +235,14 @@ class LoginFormState extends State<LoginForm> {
                       Navigator.pushNamed(context, '/registro/dados_pessoais');
                     },
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+                      padding: WidgetStateProperty.all<EdgeInsets>(
+                        EdgeInsets.zero,
+                      ),
                       minimumSize: WidgetStateProperty.all<Size>(Size(0, 0)),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent),
+                      overlayColor: WidgetStateProperty.all<Color>(
+                        Colors.transparent,
+                      ),
                     ),
                     child: const Text(
                       " Cadastre-se",

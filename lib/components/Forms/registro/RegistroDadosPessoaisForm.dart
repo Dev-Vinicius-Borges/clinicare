@@ -1,5 +1,13 @@
+import 'dart:io';
+
+import 'package:clini_care/server/Dtos/cliente/CriarClienteDto.dart';
+import 'package:clini_care/server/Dtos/telefone/CriarTelefoneDto.dart';
+import 'package:clini_care/server/services/ClienteService.dart';
+import 'package:clini_care/server/services/TelefoneService.dart';
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 
 class RegistroDadosPessoaisForm extends StatefulWidget {
   const RegistroDadosPessoaisForm({super.key});
@@ -41,7 +49,7 @@ class RegistroDadosPessoaisFormState extends State<RegistroDadosPessoaisForm> {
                   ),
                   validator:
                       (String? value) =>
-                  !valueValidator(value) ? "Insira o nome" : null,
+                          !valueValidator(value) ? "Insira o nome" : null,
                   controller: nomeController,
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -151,10 +159,11 @@ class RegistroDadosPessoaisFormState extends State<RegistroDadosPessoaisForm> {
                       context: context,
                       initialDate: DateTime.now(),
                       firstDate: DateTime(1900),
-                      lastDate: DateTime(2100),
+                      lastDate: DateTime.now(),
                     );
 
-                    dataNascimentoController.text = data!.toIso8601String();
+                    dataNascimentoController.text =
+                        data!.toIso8601String().split('T')[0];
                   },
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -203,12 +212,12 @@ class RegistroDadosPessoaisFormState extends State<RegistroDadosPessoaisForm> {
                   ),
                   validator:
                       (String? value) =>
-                  !valueValidator(value) ? "Insira a Telefone" : null,
+                          !valueValidator(value) ? "Insira a Telefone" : null,
                   controller: telefoneController,
                   keyboardType: TextInputType.number,
                   inputFormatters: <TextInputFormatter>[
                     FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    FilteringTextInputFormatter.digitsOnly
+                    FilteringTextInputFormatter.digitsOnly,
                   ],
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -252,8 +261,42 @@ class RegistroDadosPessoaisFormState extends State<RegistroDadosPessoaisForm> {
               height: 60,
               child: TextButton(
                 onPressed: () async {
-                    Navigator.pushNamed(context, '/registro/endereco');
                   if (_formKey.currentState!.validate()) {
+                    CriarTelefoneDto novoTelefone = new CriarTelefoneDto(
+                      numero: BigInt.parse(telefoneController.text),
+                    );
+
+                    var criarTelefone = await TelefoneService().criarTelefone(
+                      novoTelefone,
+                    );
+
+                    CriarClienteDto novoCliente = new CriarClienteDto(
+                      nome: nomeController.text,
+                      email: emailController.text,
+                      data_nascimento: DateTime.parse(
+                        dataNascimentoController.text,
+                      ),
+                      senha: "",
+                      foto_cliente: "",
+                      telefone: criarTelefone.Dados!.id,
+                      endereco: 0,
+                    );
+
+                    var criacao = await ClienteService().criarCliente(
+                      novoCliente,
+                    );
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(criacao.Mensagem.toString())),
+                    );
+
+                    if (criacao.Status == HttpStatus.created) {
+                      Provider.of<GerenciadorDeSessao>(
+                        context,
+                        listen: false,
+                      ).setIdUsuario(criacao.Dados!.id);
+                      Navigator.pushNamed(context, "/registro/endereco");
+                    }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Preencha todos os campos.")),
