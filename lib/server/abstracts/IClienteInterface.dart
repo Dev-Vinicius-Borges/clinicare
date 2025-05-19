@@ -8,6 +8,7 @@ abstract class IClienteInterface {
   Future<RespostaModel<ClienteModel>> criarCliente(CriarClienteDto criarClienteDto);
   Future<RespostaModel<ClienteModel>> fazerLogin(LoginDto loginDt);
   Future<RespostaModel<ClienteModel>> buscarClientePorId(int id);
+  Future<RespostaModel<ClienteModel>> buscarClientePorEmail(String email);
   Future<RespostaModel<List<ClienteModel>>> listarClientes();
   Future<RespostaModel<ClienteModel>> atualizarCliente(AtualizarClienteDto atualizarClienteDto);
   Future<RespostaModel<bool>> excluirCliente(int id);

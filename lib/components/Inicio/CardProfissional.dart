@@ -6,15 +6,18 @@ class CardProfissional extends StatefulWidget {
   final int id_profissional;
   final String nome_profissional;
   final String especialidade_profissional;
+  final String? fotoUrl;
   final bool viradoParaEsquerda;
   final bool ultimoCard;
 
   const CardProfissional(
     this.id_profissional,
     this.nome_profissional,
-    this.especialidade_profissional, {super.key,
+    this.especialidade_profissional, {
+    super.key,
     required this.viradoParaEsquerda,
     required this.ultimoCard,
+    this.fotoUrl,
   });
 
   @override
@@ -28,12 +31,37 @@ class _CardProfissionalState extends State<CardProfissional> {
       width: 150,
       height: double.infinity,
       decoration: BoxDecoration(
-        color: Colors.grey,
         borderRadius: BorderRadius.horizontal(
           left: widget.viradoParaEsquerda ? Radius.circular(16) : Radius.zero,
           right: widget.viradoParaEsquerda ? Radius.zero : Radius.circular(16),
         ),
       ),
+      child:
+          widget.fotoUrl != null && widget.fotoUrl!.isNotEmpty
+              ? ClipRRect(
+                borderRadius: BorderRadius.horizontal(
+                  left:
+                      widget.viradoParaEsquerda
+                          ? Radius.circular(16)
+                          : Radius.zero,
+                  right:
+                      widget.viradoParaEsquerda
+                          ? Radius.zero
+                          : Radius.circular(16),
+                ),
+                child: Image.network(
+                  widget.fotoUrl!,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (context, error, stackTrace) =>
+                          const Icon(Icons.person, size: 100),
+                ),
+              )
+              : Container(
+                color: Colors.grey,
+                alignment: Alignment.center,
+                child: const Icon(Icons.person, size: 100),
+              ),
     );
 
     final texto = Expanded(
@@ -47,7 +75,6 @@ class _CardProfissionalState extends State<CardProfissional> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Column(
-              spacing: 8,
               crossAxisAlignment:
                   widget.viradoParaEsquerda
                       ? CrossAxisAlignment.start
@@ -55,7 +82,7 @@ class _CardProfissionalState extends State<CardProfissional> {
               children: [
                 Text(
                   widget.nome_profissional,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.black,
                     fontSize: 28,
                     fontWeight: FontWeight.w600,
@@ -74,41 +101,36 @@ class _CardProfissionalState extends State<CardProfissional> {
             SizedBox(
               height: 50,
               width: double.infinity,
-              child: Builder(
-                builder: (context) {
-                  return ElevatedButton(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        isDismissible: false,
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) {
-                          return BottomSheetContainer(
-                            'Escolha uma data',
-                            EscolherDataDisponivel()
-                          );
-                        },
+              child: ElevatedButton(
+                onPressed: () {
+                  showModalBottomSheet(
+                    isDismissible: false,
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) {
+                      return BottomSheetContainer(
+                        'Escolha uma data',
+                        EscolherDataDisponivel(),
                       );
-
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color.fromARGB(255, 64, 91, 230),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      "Agendar consulta",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
                   );
-                }
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color.fromARGB(255, 64, 91, 230),
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text(
+                  "Agendar consulta",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ),
           ],
@@ -117,7 +139,10 @@ class _CardProfissionalState extends State<CardProfissional> {
     );
 
     return Padding(
-      padding: widget.ultimoCard ? EdgeInsets.only(bottom: 136) : EdgeInsets.zero,
+      padding:
+          widget.ultimoCard
+              ? const EdgeInsets.only(bottom: 136)
+              : EdgeInsets.zero,
       child: Container(
         width: double.infinity,
         height: 200,
@@ -126,10 +151,10 @@ class _CardProfissionalState extends State<CardProfissional> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: Colors.black.withOpacity(0.2),
               spreadRadius: 2,
               blurRadius: 8,
-              offset: Offset(0, 4),
+              offset: const Offset(0, 4),
             ),
           ],
         ),
