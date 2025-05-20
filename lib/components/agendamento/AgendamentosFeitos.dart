@@ -1,6 +1,7 @@
 import 'package:clini_care/components/agendamento/CardAgendamento.dart';
 import 'package:clini_care/components/agendamento/CardSemConsulta.dart';
 import 'package:clini_care/server/services/ConsultaCompletoService.dart';
+import 'package:clini_care/server/services/ConsultaService.dart';
 import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -48,12 +49,56 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
         isLoading = false;
       });
     } catch (e) {
-      print('Erro ao carregar consultas: $e');
       setState(() {
         consultasUsuario = [];
         isLoading = false;
       });
     }
+  }
+
+  Future<void> cancelarConsulta(int idConsulta) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      var resposta = await ConsultaService().excluirConsulta(idConsulta);
+
+      if (resposta.Status == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Consulta cancelada com sucesso")),
+        );
+        await carregarConsultas();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erro ao cancelar consulta: ${resposta.Mensagem}"),
+          ),
+        );
+        setState(() {
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro ao cancelar consulta: $e")));
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  void trocarMedico(int idConsulta) {
+
+  }
+
+  void trocarHorario(int idConsulta) {
+
+  }
+
+  void trocarData(int idConsulta) {
+
   }
 
   @override
@@ -154,10 +199,23 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
                         itemBuilder: (context, index) {
                           var agendamento = agendamentosDoDia[index];
 
+                          String horarioFormatado =
+                              '${agendamento.consulta.data_consulta.hour.toString().padLeft(2, '0')}:${agendamento.consulta.data_consulta.minute.toString().padLeft(2, '0')}';
+
                           return CardAgendamento(
-                            horario: agendamento.horario,
+                            horario: horarioFormatado,
                             nome: agendamento.medico.nome,
                             especialidade: agendamento.medico.especialidade,
+                            fotoMedico: agendamento.medico.foto_medico,
+                            idConsulta: agendamento.consulta.id,
+                            onCancelar:
+                                () => cancelarConsulta(agendamento.consulta.id),
+                            onTrocarMedico:
+                                () => trocarMedico(agendamento.consulta.id),
+                            onTrocarHorario:
+                                () => trocarHorario(agendamento.consulta.id),
+                            onTrocarData:
+                                () => trocarData(agendamento.consulta.id),
                           );
                         },
                       );

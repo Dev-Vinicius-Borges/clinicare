@@ -1,6 +1,7 @@
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/EscolherDataDisponivel.dart';
 import 'package:clini_care/server/models/HorariosDisponiveisMedicosModel.dart';
+import 'package:clini_care/server/services/HorariosDisponiveisMedicosService.dart';
 import 'package:flutter/material.dart';
 
 class CardProfissional extends StatefulWidget {
@@ -109,14 +110,18 @@ class _CardProfissionalState extends State<CardProfissional> {
                   Map<DateTime, List<TimeOfDay>> horariosPorData = {};
 
                   for (var horario in widget.horariosDisponiveis) {
-                    DateTime data = horario.data_real;
+                    DateTime data = DateTime(
+                      horario.data_real.year,
+                      horario.data_real.month,
+                      horario.data_real.day,
+                    );
                     TimeOfDay hora = horario.horario;
-
                     if (!horariosPorData.containsKey(data)) {
                       horariosPorData[data] = [];
                     }
                     horariosPorData[data]!.add(hora);
                   }
+
                   showModalBottomSheet(
                     isDismissible: false,
                     context: context,
@@ -132,6 +137,7 @@ class _CardProfissionalState extends State<CardProfissional> {
                       );
                     },
                   );
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Color.fromARGB(255, 64, 91, 230),

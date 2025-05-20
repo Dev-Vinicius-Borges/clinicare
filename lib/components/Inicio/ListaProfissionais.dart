@@ -24,6 +24,7 @@ class _ListaProfissionaisState extends State<ListaProfissionais> {
     var resposta =
         await HorariosDisponiveisMedicosService().listarHorariosDisponiveis();
 
+
     agrupados.clear();
     for (var item in resposta.Dados!) {
       agrupados.putIfAbsent(item.id_medico, () => []).add(item);

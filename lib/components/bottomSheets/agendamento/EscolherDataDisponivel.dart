@@ -23,14 +23,77 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
   DateTime? dataEscolhida;
   late Map<DateTime, List<TimeOfDay>> _datasDisponiveis;
 
+  late DateTime dataLimite;
+
   @override
   void initState() {
     super.initState();
-    _datasDisponiveis = widget.horariosDisponiveis;
+    _processarDatasDisponiveis();
+
+    dataLimite = DateTime.now().add(Duration(days: 30));
+
+    _datasDisponiveis.keys.forEach((data) {
+      print(
+        "${DateFormat('dd/MM/yyyy').format(data)} - ${_datasDisponiveis[data]!.length} horários",
+      );
+    });
+  }
+
+  void _processarDatasDisponiveis() {
+    Map<DateTime, List<TimeOfDay>> datasProcessadas = {};
+
+    for (var entrada in widget.horariosDisponiveis.entries) {
+      DateTime dataNormalizada = DateTime(
+        entrada.key.year,
+        entrada.key.month,
+        entrada.key.day,
+      );
+
+      Set<String> horariosUnicos = {};
+      List<TimeOfDay> horariosProcessados = [];
+
+      for (var horario in entrada.value) {
+        String chaveHorario = '${horario.hour}:${horario.minute}';
+        if (!horariosUnicos.contains(chaveHorario)) {
+          horariosUnicos.add(chaveHorario);
+          horariosProcessados.add(horario);
+        }
+      }
+
+      datasProcessadas[dataNormalizada] = horariosProcessados;
+    }
+
+    _datasDisponiveis = datasProcessadas;
+  }
+
+  bool _ehDiaUtil(DateTime date) {
+    return date.weekday >= 1 && date.weekday <= 5;
+  }
+
+  bool _estaDentroDoLimite(DateTime date) {
+    return date.isBefore(dataLimite) || isSameDay(date, dataLimite);
   }
 
   bool dataEstaDisponivel(DateTime day) {
-    return _datasDisponiveis.containsKey(day);
+    if (!_ehDiaUtil(day) || !_estaDentroDoLimite(day)) {
+      return false;
+    }
+
+    for (DateTime data in _datasDisponiveis.keys) {
+      if (isSameDay(data, day)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  List<TimeOfDay>? getHorariosParaData(DateTime day) {
+    for (DateTime data in _datasDisponiveis.keys) {
+      if (isSameDay(data, day)) {
+        return _datasDisponiveis[data];
+      }
+    }
+    return null;
   }
 
   @override
@@ -42,8 +105,8 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
         children: [
           TableCalendar(
             locale: 'pt_BR',
-            firstDay: DateTime.utc(2020, 1, 1),
-            lastDay: DateTime.utc(2030, 12, 31),
+            firstDay: DateTime.now(),
+            lastDay: dataLimite,
             focusedDay: dataInicial,
             selectedDayPredicate:
                 (day) =>
@@ -55,6 +118,38 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                   dataInicial = focusedDay;
                 });
               }
+            },
+            calendarBuilders: CalendarBuilders(
+              defaultBuilder: (context, day, focusedDay) {
+                if (dataEstaDisponivel(day)) {
+                  return Center(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(255, 184, 194, 246),
+                        shape: BoxShape.circle,
+                      ),
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        '${day.day}',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  );
+                } else {
+                  return null;
+                }
+              },
+              disabledBuilder: (context, day, focusedDay) {
+                return Center(
+                  child: Text(
+                    '${day.day}',
+                    style: TextStyle(color: Colors.grey.withValues(alpha:0.5)),
+                  ),
+                );
+              },
+            ),
+            enabledDayPredicate: (day) {
+              return dataEstaDisponivel(day);
             },
           ),
           SizedBox(height: 16),
@@ -89,7 +184,8 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                 height: 60,
                 child: ElevatedButton(
                   onPressed:
-                      dataEscolhida != null
+                      dataEscolhida != null &&
+                              dataEstaDisponivel(dataEscolhida!)
                           ? () {
                             Navigator.pop(context, dataEscolhida);
 
@@ -103,13 +199,24 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                                       dataEscolhida: dataEscolhida!,
                                       id_profissional: widget.id_profissional,
                                       horarios:
-                                          _datasDisponiveis[dataEscolhida!]!,
+                                          getHorariosParaData(dataEscolhida!)!,
                                     ),
                                   ),
                             );
                           }
                           : null,
-                  child: Text(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        dataEscolhida != null &&
+                                dataEstaDisponivel(dataEscolhida!)
+                            ? const Color.fromARGB(255, 64, 91, 230)
+                            : Colors.grey.shade400,
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
                     'Confirmar',
                     style: TextStyle(color: Colors.white),
                   ),

@@ -14,6 +14,13 @@ class HorariosDisponiveisMedicosService
     _contexto = horariosDisponiveis ?? Supabase.instance.client;
   }
 
+  String obterUrlFotoMedico(String caminhoArquivo) {
+    return Supabase.instance.client.storage
+        .from('profissionais')
+        .getPublicUrl(caminhoArquivo);
+  }
+
+
   @override
   Future<RespostaModel<List<HorariosDisponiveisMedicosModel>>>
   buscarHorariosPorIdMedico(int id_medico) async {
@@ -33,10 +40,9 @@ class HorariosDisponiveisMedicosService
                   id_agenda: horario['id_agenda'],
                   id_medico: horario['id_medico'],
                   nome_medico: horario['nome_medico'],
-                  foto_medico: horario['foto_medico'],
+                  foto_medico: obterUrlFotoMedico(horario['foto_medico']),
                   especialidade: horario['especialidade'],
                   data_real: DateTime.parse(horario['data_real']),
-                  // Alteração aqui
                   horario: TimeOfDay(
                     hour: int.parse(horario['horario'].split(':')[0]),
                     minute: int.parse(horario['horario'].split(':')[1]),
@@ -65,14 +71,16 @@ class HorariosDisponiveisMedicosService
       var horarios =
           await _contexto.from('horarios_disponiveis_medicos').select();
 
+
+
       resposta.Dados =
           horarios
               .map<HorariosDisponiveisMedicosModel>(
                 (horario) => HorariosDisponiveisMedicosModel(
                   id_agenda: horario['id_agenda'],
-                  id_medico: horario['id_medico'],
+                  id_medico: horario['fk_id_medico'],
                   nome_medico: horario['nome_medico'],
-                  foto_medico: horario['foto_medico'],
+                  foto_medico: obterUrlFotoMedico(horario['foto_medico']),
                   especialidade: horario['especialidade'],
                   data_real: DateTime.parse(horario['data_real']),
                   horario: TimeOfDay(

@@ -116,8 +116,7 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                                   (context) => BottomSheetContainer(
                                     "Confirme o agendamento",
                                     ConfirmarAgendamento(
-                                      medico.id,
-                                      medico.especialidade,
+                                      medico,
                                       widget.dataEscolhida,
                                       horarioSelecionado!,
                                     ),
