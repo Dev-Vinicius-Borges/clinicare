@@ -1,7 +1,7 @@
 import 'package:clini_care/components/RecuperarSenha/ReceberCodigo.dart';
 import 'package:flutter/material.dart';
 
-class ReceberCodigoPage extends StatelessWidget{
+class ReceberCodigoPage extends StatelessWidget {
   const ReceberCodigoPage({super.key});
 
   @override
@@ -10,10 +10,8 @@ class ReceberCodigoPage extends StatelessWidget{
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-            color: Color.fromARGB(255, 64, 91, 230)
-        ),
-        child: ReceberCodigo()
+        decoration: BoxDecoration(color: Color.fromARGB(255, 64, 91, 230)),
+        child: ReceberCodigo(),
       ),
     );
   }

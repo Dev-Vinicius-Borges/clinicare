@@ -1,12 +1,12 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:clini_care/server/Dtos/cliente/AtualizarClienteDto.dart';
 import 'package:clini_care/server/services/ClienteService.dart';
 import 'package:clini_care/server/session/configuracao.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'dart:convert';
-import 'package:crypto/crypto.dart';
 
 class RegistroSegurancaForm extends StatefulWidget {
   const RegistroSegurancaForm({super.key});
@@ -167,27 +167,29 @@ class RegistroSegurancaFormState extends State<RegistroSegurancaForm> {
                         .buscarClientePorId(id_usuario)
                         .then((data) => data.Dados!);
 
-                    AtualizarClienteDto atualizacaoCliente = new AtualizarClienteDto(
-                      id: id_usuario,
-                      nome: clienteEncontrado.nome,
-                      email: clienteEncontrado.email,
-                      data_nascimento: clienteEncontrado.data_nascimento,
-                      senha: hashSenha,
-                      foto_cliente: clienteEncontrado.foto_cliente,
-                      telefone: clienteEncontrado.telefone,
-                      endereco: clienteEncontrado.endereco,
-                    );
+                    AtualizarClienteDto atualizacaoCliente =
+                        new AtualizarClienteDto(
+                          id: id_usuario,
+                          nome: clienteEncontrado.nome,
+                          email: clienteEncontrado.email,
+                          data_nascimento: clienteEncontrado.data_nascimento,
+                          senha: hashSenha,
+                          foto_cliente: clienteEncontrado.foto_cliente,
+                          telefone: clienteEncontrado.telefone,
+                          endereco: clienteEncontrado.endereco,
+                        );
 
-                    var atualizacao = await ClienteService().atualizarCliente(atualizacaoCliente);
+                    var atualizacao = await ClienteService().atualizarCliente(
+                      atualizacaoCliente,
+                    );
 
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(atualizacao.Mensagem.toString())),
                     );
 
-                    if(atualizacao.Status == HttpStatus.ok){
+                    if (atualizacao.Status == HttpStatus.ok) {
                       Navigator.pushNamed(context, "/inicio");
                     }
-
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Preencha todos os campos.")),

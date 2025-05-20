@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:clini_care/server/Dtos/cliente/AtualizarClienteDto.dart';
 import 'package:clini_care/server/Dtos/endereco/CriarEnderecoDto.dart';
 import 'package:clini_care/server/services/ClienteService.dart';
@@ -7,8 +8,8 @@ import 'package:clini_care/server/services/EnderecoService.dart';
 import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 
 class RegistroEnderecoForm extends StatefulWidget {
   const RegistroEnderecoForm({super.key});
@@ -307,7 +308,7 @@ class RegistroEnderecoFormState extends State<RegistroEnderecoForm> {
                     var atualizarCliente = await ClienteService()
                         .atualizarCliente(clienteAtt);
 
-                    if (atualizarCliente.Status == HttpStatus.ok){
+                    if (atualizarCliente.Status == HttpStatus.ok) {
                       Navigator.pushNamed(context, "/registro/seguranca");
                     }
                   } else {

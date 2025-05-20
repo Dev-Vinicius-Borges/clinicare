@@ -20,6 +20,6 @@ class AtualizarClienteDto {
     required this.foto_cliente,
     required this.telefone,
     required this.endereco,
-    this.fotoArquivo
+    this.fotoArquivo,
   });
 }

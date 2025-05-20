@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:clini_care/server/Dtos/agendasMedicos/AtualizarAgendasMedicosDto.dart';
 import 'package:clini_care/server/Dtos/agendasMedicos/CriarAgendasMedicosDto.dart';
 import 'package:clini_care/server/abstracts/IAgendasMedicosInterface.dart';
@@ -16,10 +17,16 @@ class AgendasMedicosService implements IAgendasMedicosInterface {
 
   @override
   Future<RespostaModel<AgendasMedicosModel>> buscarAgendaPorId(int id) async {
-    RespostaModel<AgendasMedicosModel> resposta = RespostaModel<AgendasMedicosModel>();
+    RespostaModel<AgendasMedicosModel> resposta =
+        RespostaModel<AgendasMedicosModel>();
 
     try {
-      var agenda = await _contexto.from('agendas_medicos').select().eq("id_agenda", id).single();
+      var agenda =
+          await _contexto
+              .from('agendas_medicos')
+              .select()
+              .eq("id_agenda", id)
+              .single();
 
       resposta.Dados = AgendasMedicosModel(
         id_agenda: agenda['id_agenda'],
@@ -43,20 +50,26 @@ class AgendasMedicosService implements IAgendasMedicosInterface {
 
   @override
   Future<RespostaModel<List<AgendasMedicosModel>>> listarAgendas() async {
-    RespostaModel<List<AgendasMedicosModel>> resposta = RespostaModel<List<AgendasMedicosModel>>();
+    RespostaModel<List<AgendasMedicosModel>> resposta =
+        RespostaModel<List<AgendasMedicosModel>>();
 
     try {
       var agendas = await _contexto.from('agendas_medicos').select();
 
-      resposta.Dados = agendas.map<AgendasMedicosModel>((agenda) => AgendasMedicosModel(
-        id_agenda: agenda['id_agenda'],
-        fk_id_medico: agenda['fk_id_medico'],
-        dia_semana: agenda['dia_semana'],
-        horario: TimeOfDay(
-          hour: int.parse(agenda['horario'].split(':')[0]),
-          minute: int.parse(agenda['horario'].split(':')[1]),
-        ),
-      )).toList();
+      resposta.Dados =
+          agendas
+              .map<AgendasMedicosModel>(
+                (agenda) => AgendasMedicosModel(
+                  id_agenda: agenda['id_agenda'],
+                  fk_id_medico: agenda['fk_id_medico'],
+                  dia_semana: agenda['dia_semana'],
+                  horario: TimeOfDay(
+                    hour: int.parse(agenda['horario'].split(':')[0]),
+                    minute: int.parse(agenda['horario'].split(':')[1]),
+                  ),
+                ),
+              )
+              .toList();
 
       resposta.Mensagem = "Lista de agendas recuperada com sucesso.";
       resposta.Status = HttpStatus.ok;
@@ -69,20 +82,24 @@ class AgendasMedicosService implements IAgendasMedicosInterface {
   }
 
   @override
-  Future<RespostaModel<AgendasMedicosModel>> atualizarAgenda(AtualizarAgendasMedicosDto atualizarAgendaDto) async {
-    RespostaModel<AgendasMedicosModel> resposta = RespostaModel<AgendasMedicosModel>();
+  Future<RespostaModel<AgendasMedicosModel>> atualizarAgenda(
+    AtualizarAgendasMedicosDto atualizarAgendaDto,
+  ) async {
+    RespostaModel<AgendasMedicosModel> resposta =
+        RespostaModel<AgendasMedicosModel>();
 
     try {
-      var agendaAtualizada = await _contexto
-          .from('agendas_medicos')
-          .update({
-        "fk_id_medico": atualizarAgendaDto.fk_id_medico,
-        "dia_semana": atualizarAgendaDto.dia_semana,
-        "horario": atualizarAgendaDto.horario,
-      })
-          .eq("id_agenda", atualizarAgendaDto.id_agenda)
-          .select()
-          .single();
+      var agendaAtualizada =
+          await _contexto
+              .from('agendas_medicos')
+              .update({
+                "fk_id_medico": atualizarAgendaDto.fk_id_medico,
+                "dia_semana": atualizarAgendaDto.dia_semana,
+                "horario": atualizarAgendaDto.horario,
+              })
+              .eq("id_agenda", atualizarAgendaDto.id_agenda)
+              .select()
+              .single();
 
       resposta.Dados = AgendasMedicosModel(
         id_agenda: agendaAtualizada['id_agenda'],
@@ -104,21 +121,24 @@ class AgendasMedicosService implements IAgendasMedicosInterface {
     return resposta;
   }
 
-
   @override
-  Future<RespostaModel<AgendasMedicosModel>> criarAgenda(CriarAgendasMedicosDto criarAgendaDto) async {
-    RespostaModel<AgendasMedicosModel> resposta = RespostaModel<AgendasMedicosModel>();
+  Future<RespostaModel<AgendasMedicosModel>> criarAgenda(
+    CriarAgendasMedicosDto criarAgendaDto,
+  ) async {
+    RespostaModel<AgendasMedicosModel> resposta =
+        RespostaModel<AgendasMedicosModel>();
 
     try {
-      var novaAgenda = await _contexto
-          .from('agendas_medicos')
-          .insert({
-        "fk_id_medico": criarAgendaDto.fk_id_medico,
-        "dia_semana": criarAgendaDto.dia_semana,
-        "horario": criarAgendaDto.horario,
-      })
-          .select()
-          .single();
+      var novaAgenda =
+          await _contexto
+              .from('agendas_medicos')
+              .insert({
+                "fk_id_medico": criarAgendaDto.fk_id_medico,
+                "dia_semana": criarAgendaDto.dia_semana,
+                "horario": criarAgendaDto.horario,
+              })
+              .select()
+              .single();
 
       resposta.Dados = AgendasMedicosModel(
         id_agenda: novaAgenda['id_agenda'],
@@ -140,7 +160,6 @@ class AgendasMedicosService implements IAgendasMedicosInterface {
     return resposta;
   }
 
-
   @override
   Future<RespostaModel<bool>> excluirAgenda(int id) async {
     RespostaModel<bool> resposta = RespostaModel<bool>();
@@ -159,5 +178,4 @@ class AgendasMedicosService implements IAgendasMedicosInterface {
 
     return resposta;
   }
-
 }

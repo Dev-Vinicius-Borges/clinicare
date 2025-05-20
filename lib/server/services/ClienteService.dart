@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:clini_care/server/Dtos/cliente/AtualizarClienteDto.dart';
 import 'package:clini_care/server/Dtos/cliente/CriarClienteDto.dart';
 import 'package:clini_care/server/Dtos/cliente/LoginDto.dart';
@@ -251,7 +252,7 @@ class ClienteService implements IClienteInterface {
                         .toIso8601String()
                         .split('T')[0],
                 "senha": criarClienteDto.senha,
-                "fk_id_telefone": criarClienteDto.telefone
+                "fk_id_telefone": criarClienteDto.telefone,
               })
               .select()
               .single();

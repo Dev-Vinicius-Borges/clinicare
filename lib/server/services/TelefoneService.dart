@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:clini_care/server/Dtos/telefone/AtualizarTelefoneDto.dart';
 import 'package:clini_care/server/Dtos/telefone/CriarTelefoneDto.dart';
 import 'package:clini_care/server/abstracts/ITelefoneInterface.dart';
@@ -14,17 +15,18 @@ class TelefoneService implements ITelefoneInterface {
   }
 
   @override
-  Future<RespostaModel<TelefoneModel>> criarTelefone(CriarTelefoneDto criarTelefoneDto) async {
+  Future<RespostaModel<TelefoneModel>> criarTelefone(
+    CriarTelefoneDto criarTelefoneDto,
+  ) async {
     RespostaModel<TelefoneModel> resposta = RespostaModel<TelefoneModel>();
 
     try {
-      var novoTelefone = await _contexto
-          .from('telefones')
-          .insert({
-        "numero": criarTelefoneDto.numero,
-      })
-          .select()
-          .single();
+      var novoTelefone =
+          await _contexto
+              .from('telefones')
+              .insert({"numero": criarTelefoneDto.numero})
+              .select()
+              .single();
 
       resposta.Dados = TelefoneModel(
         id: novoTelefone['id_telefone'],
@@ -46,7 +48,12 @@ class TelefoneService implements ITelefoneInterface {
     RespostaModel<TelefoneModel> resposta = RespostaModel<TelefoneModel>();
 
     try {
-      var telefone = await _contexto.from('telefones').select().eq("id_telefone", id).single();
+      var telefone =
+          await _contexto
+              .from('telefones')
+              .select()
+              .eq("id_telefone", id)
+              .single();
 
       resposta.Dados = TelefoneModel(
         id: telefone['id_telefone'],
@@ -65,17 +72,21 @@ class TelefoneService implements ITelefoneInterface {
 
   @override
   Future<RespostaModel<List<TelefoneModel>>> listarTelefones() async {
-    RespostaModel<List<TelefoneModel>> resposta = RespostaModel<List<TelefoneModel>>();
+    RespostaModel<List<TelefoneModel>> resposta =
+        RespostaModel<List<TelefoneModel>>();
 
     try {
       var telefones = await _contexto.from('telefones').select();
 
-      resposta.Dados = telefones
-          .map<TelefoneModel>((telefone) => TelefoneModel(
-        id: telefone['id_telefone'],
-        numero: BigInt.parse(telefone['numero'].toString()),
-      ))
-          .toList();
+      resposta.Dados =
+          telefones
+              .map<TelefoneModel>(
+                (telefone) => TelefoneModel(
+                  id: telefone['id_telefone'],
+                  numero: BigInt.parse(telefone['numero'].toString()),
+                ),
+              )
+              .toList();
 
       resposta.Mensagem = "Lista de telefones recuperada com sucesso.";
       resposta.Status = HttpStatus.ok;
@@ -88,18 +99,19 @@ class TelefoneService implements ITelefoneInterface {
   }
 
   @override
-  Future<RespostaModel<TelefoneModel>> atualizarTelefone(AtualizarTelefoneDto atualizarTelefoneDto) async {
+  Future<RespostaModel<TelefoneModel>> atualizarTelefone(
+    AtualizarTelefoneDto atualizarTelefoneDto,
+  ) async {
     RespostaModel<TelefoneModel> resposta = RespostaModel<TelefoneModel>();
 
     try {
-      var telefoneAtualizado = await _contexto
-          .from('telefones')
-          .update({
-        "numero": atualizarTelefoneDto.numero,
-      })
-          .eq("id_telefone", atualizarTelefoneDto.id)
-          .select()
-          .single();
+      var telefoneAtualizado =
+          await _contexto
+              .from('telefones')
+              .update({"numero": atualizarTelefoneDto.numero})
+              .eq("id_telefone", atualizarTelefoneDto.id)
+              .select()
+              .single();
 
       resposta.Dados = TelefoneModel(
         id: telefoneAtualizado['id_telefone'],

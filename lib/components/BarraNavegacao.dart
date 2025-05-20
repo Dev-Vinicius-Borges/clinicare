@@ -14,18 +14,22 @@ class BarraNavegacao extends StatelessWidget {
     }) {
       final estaAtivo = rotaAtual == rota;
 
-      final buttonChild = estaAtivo
-          ? SizedBox.expand(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(icone, color: Colors.white, size: 24),
-            SizedBox(width: 8),
-            Text(texto, style: TextStyle(color: Colors.white, fontSize: 16)),
-          ],
-        ),
-      )
-          : Center(child: Icon(icone, color: Colors.white, size: 24));
+      final buttonChild =
+          estaAtivo
+              ? SizedBox.expand(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(icone, color: Colors.white, size: 24),
+                    SizedBox(width: 8),
+                    Text(
+                      texto,
+                      style: TextStyle(color: Colors.white, fontSize: 16),
+                    ),
+                  ],
+                ),
+              )
+              : Center(child: Icon(icone, color: Colors.white, size: 24));
 
       final botaoNav = ElevatedButton(
         onPressed: () {
@@ -62,11 +66,7 @@ class BarraNavegacao extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               spacing: 16,
               children: [
-                buildBotao(
-                  icone: Icons.person,
-                  texto: 'Conta',
-                  rota: '/conta',
-                ),
+                buildBotao(icone: Icons.person, texto: 'Conta', rota: '/conta'),
                 buildBotao(
                   icone: Icons.house,
                   texto: 'Início',

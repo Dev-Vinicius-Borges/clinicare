@@ -282,7 +282,6 @@ class RegistroDadosPessoaisFormState extends State<RegistroDadosPessoaisForm> {
                       endereco: 0,
                     );
 
-
                     var criacao = await ClienteService().criarCliente(
                       novoCliente,
                     );

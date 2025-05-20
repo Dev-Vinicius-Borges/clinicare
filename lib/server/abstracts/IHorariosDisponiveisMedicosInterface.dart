@@ -5,5 +5,6 @@ abstract class IHorariosDisponiveisMedicosInterface {
   Future<RespostaModel<List<HorariosDisponiveisMedicosModel>>>
   listarHorariosDisponiveis();
 
-  Future<RespostaModel<List<HorariosDisponiveisMedicosModel>>>buscarHorariosPorIdMedico(int id_medico);
+  Future<RespostaModel<List<HorariosDisponiveisMedicosModel>>>
+  buscarHorariosPorIdMedico(int id_medico);
 }

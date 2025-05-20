@@ -1,7 +1,7 @@
 import 'package:clini_care/components/registro/RegistroEndereco.dart';
 import 'package:flutter/material.dart';
 
-class RegistroEnderecoPage extends StatelessWidget{
+class RegistroEnderecoPage extends StatelessWidget {
   const RegistroEnderecoPage({super.key});
 
   @override
@@ -10,9 +10,7 @@ class RegistroEnderecoPage extends StatelessWidget{
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-            color: Color.fromARGB(255, 64, 91, 230)
-        ),
+        decoration: BoxDecoration(color: Color.fromARGB(255, 64, 91, 230)),
         child: RegistroEndereco(),
       ),
     );

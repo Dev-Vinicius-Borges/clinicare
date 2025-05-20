@@ -1,20 +1,19 @@
-import 'dart:io';
-
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/ConfirmarAgendamento.dart';
 import 'package:clini_care/server/models/MedicoModel.dart';
-import 'package:clini_care/server/services/HorariosDisponiveisMedicosService.dart';
 import 'package:clini_care/server/services/MedicoService.dart';
 import 'package:flutter/material.dart';
 
 class EscolherHorarioDisponivel extends StatefulWidget {
   final int id_profissional;
   final DateTime dataEscolhida;
+  final List<TimeOfDay> horarios;
 
   EscolherHorarioDisponivel({
     super.key,
     required this.dataEscolhida,
     required this.id_profissional,
+    required this.horarios,
   });
 
   @override
@@ -23,20 +22,15 @@ class EscolherHorarioDisponivel extends StatefulWidget {
 }
 
 class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
-  List<TimeOfDay> horariosDisponiveis = [];
+  late List<TimeOfDay> horariosDisponiveis;
   late MedicoModel medico;
   TimeOfDay? horarioSelecionado;
 
-  void buscarHorariosDisponiveis() async {
-    var resposta = await HorariosDisponiveisMedicosService()
-        .buscarHorariosPorIdMedico(widget.id_profissional);
-
-    if (resposta.Status == HttpStatus.ok && resposta.Dados != null) {
-      setState(() {
-        horariosDisponiveis =
-            resposta.Dados!.map((horario) => horario.horario).toSet().toList();
-      });
-    }
+  @override
+  void initState() {
+    super.initState();
+    horariosDisponiveis = widget.horarios;
+    buscarInformacoesMedico();
   }
 
   void buscarInformacoesMedico() async {
@@ -44,13 +38,6 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
       widget.id_profissional,
     );
     medico = consulta.Dados!;
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    buscarHorariosDisponiveis();
-    buscarInformacoesMedico();
   }
 
   @override
@@ -134,23 +121,6 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                                       widget.dataEscolhida,
                                       horarioSelecionado!,
                                     ),
-                                    voltarParaBottomSheetAnterior: () {
-                                      showModalBottomSheet(
-                                        context: context,
-                                        isScrollControlled: true,
-                                        isDismissible: false,
-                                        builder:
-                                            (context) => BottomSheetContainer(
-                                              "Escolha um horário",
-                                              EscolherHorarioDisponivel(
-                                                id_profissional:
-                                                    widget.id_profissional,
-                                                dataEscolhida:
-                                                    widget.dataEscolhida,
-                                              ),
-                                            ),
-                                      );
-                                    },
                                   ),
                             );
                           }
@@ -160,9 +130,9 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                       states,
                     ) {
                       if (states.contains(WidgetState.disabled)) {
-                        return Color(0xFFBFC9FF); // desativado
+                        return Color(0xFFBFC9FF);
                       }
-                      return Color(0xFF405BE6); // ativo
+                      return Color(0xFF405BE6);
                     }),
                     shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
                       RoundedRectangleBorder(

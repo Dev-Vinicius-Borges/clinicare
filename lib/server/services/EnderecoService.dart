@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:clini_care/server/Dtos/endereco/AtualizarEndereoDto.dart';
 import 'package:clini_care/server/Dtos/endereco/CriarEnderecoDto.dart';
 import 'package:clini_care/server/abstracts/IEnderecoInterface.dart';
@@ -14,20 +15,23 @@ class EnderecoService implements IEnderecoInterface {
   }
 
   @override
-  Future<RespostaModel<EnderecoModel>> criarEndereco(CriarEnderecoDto criarEnderecoDto) async {
+  Future<RespostaModel<EnderecoModel>> criarEndereco(
+    CriarEnderecoDto criarEnderecoDto,
+  ) async {
     RespostaModel<EnderecoModel> resposta = RespostaModel<EnderecoModel>();
 
     try {
-      var novoEndereco = await _contexto
-          .from('enderecos')
-          .insert({
-        "cep": criarEnderecoDto.cep,
-        "rua": criarEnderecoDto.rua,
-        "numero": criarEnderecoDto.numero,
-        "cidade": criarEnderecoDto.cidade,
-      })
-          .select()
-          .single();
+      var novoEndereco =
+          await _contexto
+              .from('enderecos')
+              .insert({
+                "cep": criarEnderecoDto.cep,
+                "rua": criarEnderecoDto.rua,
+                "numero": criarEnderecoDto.numero,
+                "cidade": criarEnderecoDto.cidade,
+              })
+              .select()
+              .single();
 
       resposta.Dados = EnderecoModel(
         id: novoEndereco['id_endereco'],
@@ -52,7 +56,12 @@ class EnderecoService implements IEnderecoInterface {
     RespostaModel<EnderecoModel> resposta = RespostaModel<EnderecoModel>();
 
     try {
-      var endereco = await _contexto.from('enderecos').select().eq("id_endereco", id).single();
+      var endereco =
+          await _contexto
+              .from('enderecos')
+              .select()
+              .eq("id_endereco", id)
+              .single();
 
       resposta.Dados = EnderecoModel(
         id: endereco['id_endereco'],
@@ -74,20 +83,24 @@ class EnderecoService implements IEnderecoInterface {
 
   @override
   Future<RespostaModel<List<EnderecoModel>>> listarEnderecos() async {
-    RespostaModel<List<EnderecoModel>> resposta = RespostaModel<List<EnderecoModel>>();
+    RespostaModel<List<EnderecoModel>> resposta =
+        RespostaModel<List<EnderecoModel>>();
 
     try {
       var enderecos = await _contexto.from('enderecos').select();
 
-      resposta.Dados = enderecos
-          .map<EnderecoModel>((endereco) => EnderecoModel(
-        id: endereco['id_endereco'],
-        cep: endereco['cep'],
-        rua: endereco['rua'],
-        numero: endereco['numero'],
-        cidade: endereco['cidade'],
-      ))
-          .toList();
+      resposta.Dados =
+          enderecos
+              .map<EnderecoModel>(
+                (endereco) => EnderecoModel(
+                  id: endereco['id_endereco'],
+                  cep: endereco['cep'],
+                  rua: endereco['rua'],
+                  numero: endereco['numero'],
+                  cidade: endereco['cidade'],
+                ),
+              )
+              .toList();
 
       resposta.Mensagem = "Lista de endereços recuperada com sucesso.";
       resposta.Status = HttpStatus.ok;
@@ -100,21 +113,24 @@ class EnderecoService implements IEnderecoInterface {
   }
 
   @override
-  Future<RespostaModel<EnderecoModel>> atualizarEndereco(AtualizarEnderecoDto atualizarEnderecoDto) async {
+  Future<RespostaModel<EnderecoModel>> atualizarEndereco(
+    AtualizarEnderecoDto atualizarEnderecoDto,
+  ) async {
     RespostaModel<EnderecoModel> resposta = RespostaModel<EnderecoModel>();
 
     try {
-      var enderecoAtualizado = await _contexto
-          .from('enderecos')
-          .update({
-        "cep": atualizarEnderecoDto.cep,
-        "rua": atualizarEnderecoDto.rua,
-        "numero": atualizarEnderecoDto.numero,
-        "cidade": atualizarEnderecoDto.cidade,
-      })
-          .eq("id_endereco", atualizarEnderecoDto.id)
-          .select()
-          .single();
+      var enderecoAtualizado =
+          await _contexto
+              .from('enderecos')
+              .update({
+                "cep": atualizarEnderecoDto.cep,
+                "rua": atualizarEnderecoDto.rua,
+                "numero": atualizarEnderecoDto.numero,
+                "cidade": atualizarEnderecoDto.cidade,
+              })
+              .eq("id_endereco", atualizarEnderecoDto.id)
+              .select()
+              .single();
 
       resposta.Dados = EnderecoModel(
         id: enderecoAtualizado['id_endereco'],

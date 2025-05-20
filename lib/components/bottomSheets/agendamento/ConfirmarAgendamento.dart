@@ -1,9 +1,16 @@
+import 'dart:io';
+
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/EscolherDataDisponivel.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/EscolherHorarioDisponivel.dart';
+import 'package:clini_care/server/Dtos/consulta/CriarConsultaDto.dart';
 import 'package:clini_care/server/models/MedicoModel.dart';
+import 'package:clini_care/server/services/ConsultaService.dart';
+import 'package:clini_care/server/services/HorariosDisponiveisMedicosService.dart';
 import 'package:clini_care/server/services/MedicoService.dart';
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ConfirmarAgendamento extends StatefulWidget {
   final int id_profissional;
@@ -25,6 +32,8 @@ class ConfirmarAgendamento extends StatefulWidget {
 
 class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
   late MedicoModel medico;
+  Map<DateTime, List<TimeOfDay>> horariosPorData = {};
+  late int id_usuario;
 
   void buscarInfoMedico() async {
     var busca = await MedicoService().buscarMedicoPorId(widget.id_profissional);
@@ -33,10 +42,40 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
     });
   }
 
+  void buscarCliente() {
+    id_usuario =
+        Provider.of<GerenciadorDeSessao>(context, listen: false).idUsuario!;
+  }
+
+  Future<void> buscarHorariosDisponiveis() async {
+    var resposta = await HorariosDisponiveisMedicosService()
+        .buscarHorariosPorIdMedico(widget.id_profissional);
+
+    if (resposta.Status == HttpStatus.ok && resposta.Dados != null) {
+      Map<DateTime, List<TimeOfDay>> tempHorariosPorData = {};
+
+      for (var horario in resposta.Dados!) {
+        DateTime data = horario.data_real;
+        TimeOfDay hora = horario.horario;
+
+        if (!tempHorariosPorData.containsKey(data)) {
+          tempHorariosPorData[data] = [];
+        }
+        tempHorariosPorData[data]!.add(hora);
+      }
+
+      setState(() {
+        horariosPorData = tempHorariosPorData;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     buscarInfoMedico();
+    buscarHorariosDisponiveis();
+    buscarCliente();
   }
 
   @override
@@ -54,11 +93,12 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
                 child: Image.network(
                   medico.foto_medico!,
                   fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Icon(Icons.person, size: 100),
+                  errorBuilder:
+                      (context, error, stackTrace) =>
+                          Icon(Icons.person, size: 100),
                 ),
               ),
             ),
-
             SizedBox(width: 12),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,14 +116,13 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
           ],
         ),
         SizedBox(height: 20),
-        // Data
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
-              spacing: 5,
               children: [
                 Icon(Icons.calendar_today, size: 20),
+                SizedBox(width: 5),
                 Text(
                   "Data",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -91,7 +130,8 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
               ],
             ),
             TextButton.icon(
-              onPressed: () {
+              onPressed: () async {
+                await buscarHorariosDisponiveis();
                 Navigator.pop(context, widget.data_consulta);
                 showModalBottomSheet(
                   context: context,
@@ -100,7 +140,10 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
                   builder:
                       (context) => BottomSheetContainer(
                         "Escolha uma data",
-                        EscolherDataDisponivel(widget.id_profissional),
+                        EscolherDataDisponivel(
+                          widget.id_profissional,
+                          horariosPorData,
+                        ),
                       ),
                 );
               },
@@ -134,14 +177,13 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
           ),
         ),
         SizedBox(height: 10),
-        // Horário
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
-              spacing: 5,
               children: [
                 Icon(Icons.access_time, size: 20),
+                SizedBox(width: 5),
                 Text(
                   "Horário",
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
@@ -160,20 +202,8 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
                         EscolherHorarioDisponivel(
                           id_profissional: widget.id_profissional,
                           dataEscolhida: widget.data_consulta,
+                          horarios: horariosPorData[widget.data_consulta] ?? [],
                         ),
-                        voltarParaBottomSheetAnterior: () {
-                          showModalBottomSheet(
-                            context: context,
-                            isScrollControlled: true,
-                            builder:
-                                (context) => BottomSheetContainer(
-                                  "Escolha uma data",
-                                  EscolherDataDisponivel(
-                                    widget.id_profissional,
-                                  ),
-                                ),
-                          );
-                        },
                       ),
                 );
               },
@@ -216,8 +246,24 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
         ),
         SizedBox(height: 20),
         ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
+          onPressed: () async {
+            CriarConsultaDto novaConsulta = new CriarConsultaDto(
+              data_consulta: widget.data_consulta,
+              id_cliente: id_usuario,
+              id_medico: medico.id,
+            );
+
+            var agendamento = await ConsultaService().criarConsulta(
+              novaConsulta,
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(agendamento.Mensagem.toString())),
+            );
+
+            if (agendamento.Status == HttpStatus.created) {
+              Navigator.pop(context);
+            }
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Color.fromARGB(255, 64, 91, 230),
@@ -228,27 +274,6 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
           ),
           child: Text(
             "Agendar consulta",
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Color.fromARGB(255, 230, 64, 67),
-            minimumSize: Size(double.infinity, 45),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: Text(
-            "Cancelar",
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,

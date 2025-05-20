@@ -1,5 +1,6 @@
 import 'package:clini_care/components/BottomSheetContainer.dart';
 import 'package:clini_care/components/bottomSheets/agendamento/EscolherDataDisponivel.dart';
+import 'package:clini_care/server/models/HorariosDisponiveisMedicosModel.dart';
 import 'package:flutter/material.dart';
 
 class CardProfissional extends StatefulWidget {
@@ -9,6 +10,7 @@ class CardProfissional extends StatefulWidget {
   final String? fotoUrl;
   final bool viradoParaEsquerda;
   final bool ultimoCard;
+  final List<HorariosDisponiveisMedicosModel> horariosDisponiveis;
 
   CardProfissional(
     this.id_profissional,
@@ -18,6 +20,7 @@ class CardProfissional extends StatefulWidget {
     required this.viradoParaEsquerda,
     required this.ultimoCard,
     this.fotoUrl,
+    required this.horariosDisponiveis,
   });
 
   @override
@@ -103,6 +106,17 @@ class _CardProfissionalState extends State<CardProfissional> {
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
+                  Map<DateTime, List<TimeOfDay>> horariosPorData = {};
+
+                  for (var horario in widget.horariosDisponiveis) {
+                    DateTime data = horario.data_real;
+                    TimeOfDay hora = horario.horario;
+
+                    if (!horariosPorData.containsKey(data)) {
+                      horariosPorData[data] = [];
+                    }
+                    horariosPorData[data]!.add(hora);
+                  }
                   showModalBottomSheet(
                     isDismissible: false,
                     context: context,
@@ -111,7 +125,10 @@ class _CardProfissionalState extends State<CardProfissional> {
                     builder: (context) {
                       return BottomSheetContainer(
                         'Escolha uma data',
-                        EscolherDataDisponivel(widget.id_profissional),
+                        EscolherDataDisponivel(
+                          widget.id_profissional,
+                          horariosPorData,
+                        ),
                       );
                     },
                   );
@@ -138,30 +155,23 @@ class _CardProfissionalState extends State<CardProfissional> {
       ),
     );
 
-    return Padding(
-      padding:
-          widget.ultimoCard
-              ? EdgeInsets.only(bottom: 136)
-              : EdgeInsets.zero,
-      child: Container(
-        width: double.infinity,
-        height: 200,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.2),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          children:
-              widget.viradoParaEsquerda ? [imagem, texto] : [texto, imagem],
-        ),
+    return Container(
+      width: double.infinity,
+      height: 200,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        children: widget.viradoParaEsquerda ? [imagem, texto] : [texto, imagem],
       ),
     );
   }

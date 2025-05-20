@@ -1,5 +1,9 @@
 import 'package:clini_care/components/agendamento/CardAgendamento.dart';
+import 'package:clini_care/components/agendamento/CardSemConsulta.dart';
+import 'package:clini_care/server/services/ConsultaCompletoService.dart';
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 class AgendamentoFeitos extends StatefulWidget {
@@ -10,27 +14,55 @@ class AgendamentoFeitos extends StatefulWidget {
 class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
   DateTime dataInicial = DateTime.now();
   DateTime? dataSelecionada;
-
-  final List<Map<String, dynamic>> agendamentos = [
-    {'data': DateTime(2025, 5, 24), 'horario': '08:00', 'nome': 'Dr. Silva', 'especialidade': 'Especialidade 1'},
-    {'data': DateTime(2025, 5, 24), 'horario': '12:00', 'nome': 'Dra. Costa', 'especialidade': 'Especialidade 2'},
-    {'data': DateTime(2025, 5, 24), 'horario': '14:00', 'nome': 'Dra. Costa', 'especialidade': 'Especialidade 1'},
-    {'data': DateTime(2025, 5, 18), 'horario': '09:30', 'nome': 'Dr. Oliveira', 'especialidade': 'Especialidade 3'},
-    {'data': DateTime(2025, 5, 22), 'horario': '10:00', 'nome': 'Dr. Lima', 'especialidade': 'Especialidade 5'},
-    {'data': DateTime(2025, 5, 22), 'horario': '14:00', 'nome': 'Dr. Pereira', 'especialidade': 'Especialidade 6'},
-  ];
+  late int id_usuario;
+  bool isLoading = true;
+  List<ConsultaComMedicoModel> consultasUsuario = [];
+  final ConsultaCompletoService _consultaService = ConsultaCompletoService();
 
   bool dataEstaDisponivel(DateTime day) {
-    return agendamentos.any((agendamento) =>
-    agendamento['data'].year == day.year &&
-        agendamento['data'].month == day.month &&
-        agendamento['data'].day == day.day);
+    return _consultaService.dataTemConsulta(day, consultasUsuario);
   }
 
-  List<Map<String, dynamic>> obterAgendamentos(DateTime? data) {
+  List<ConsultaComMedicoModel> obterAgendamentos(DateTime? data) {
     return data != null
-        ? agendamentos.where((agendamento) => isSameDay(agendamento['data'], data)).toList()
+        ? _consultaService.obterConsultasPorData(data, consultasUsuario)
         : [];
+  }
+
+  void buscarCliente() {
+    id_usuario =
+        Provider.of<GerenciadorDeSessao>(context, listen: false).idUsuario!;
+  }
+
+  Future<void> carregarConsultas() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      var resposta = await _consultaService
+          .buscarConsultasComMedicoPorIdUsuario(id_usuario);
+
+      setState(() {
+        consultasUsuario = resposta.Dados ?? [];
+        isLoading = false;
+      });
+    } catch (e) {
+      print('Erro ao carregar consultas: $e');
+      setState(() {
+        consultasUsuario = [];
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    buscarCliente();
+    Future.delayed(Duration.zero, () {
+      carregarConsultas();
+    });
   }
 
   @override
@@ -42,10 +74,11 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
           firstDay: DateTime.now(),
           lastDay: DateTime.utc(2030, 12, 31),
           focusedDay: DateTime.now(),
-          selectedDayPredicate: (day) =>
-          dataSelecionada != null && isSameDay(dataSelecionada, day),
+          selectedDayPredicate:
+              (day) =>
+                  dataSelecionada != null && isSameDay(dataSelecionada, day),
           onDaySelected: (selectedDay, focusedDay) {
-            if (dataEstaDisponivel(selectedDay)) {
+            if (dataEstaDisponivel(selectedDay) || true) {
               setState(() {
                 dataSelecionada = selectedDay;
                 dataInicial = focusedDay;
@@ -55,7 +88,7 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
           calendarStyle: CalendarStyle(
             defaultDecoration: BoxDecoration(shape: BoxShape.circle),
             todayDecoration: BoxDecoration(
-              color: Colors.blue.withValues(alpha:0.3),
+              color: Colors.blue.withOpacity(0.3),
               shape: BoxShape.circle,
             ),
             selectedDecoration: BoxDecoration(
@@ -94,25 +127,42 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
           headerVisible: true,
           daysOfWeekVisible: true,
           pageJumpingEnabled: false,
-          availableCalendarFormats: const {
-            CalendarFormat.week: 'Semana',
-          },
+          availableCalendarFormats: const {CalendarFormat.week: 'Semana'},
           startingDayOfWeek: StartingDayOfWeek.monday,
           calendarFormat: CalendarFormat.week,
         ),
         Expanded(
-          child: ListView.builder(
-            itemCount: obterAgendamentos(dataSelecionada).length,
-            itemBuilder: (context, index) {
-              var agendamento = obterAgendamentos(dataSelecionada)[index];
+          child:
+              isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : dataSelecionada == null
+                  ? Center(
+                    child: Text('Selecione uma data para ver as consultas'),
+                  )
+                  : Builder(
+                    builder: (context) {
+                      final agendamentosDoDia = obterAgendamentos(
+                        dataSelecionada,
+                      );
 
-              return CardAgendamento(
-                horario: agendamento['horario']!,
-                nome: agendamento['nome']!,
-                especialidade: agendamento['especialidade']!,
-              );
-            },
-          ),
+                      if (agendamentosDoDia.isEmpty) {
+                        return CardSemConsulta();
+                      }
+
+                      return ListView.builder(
+                        itemCount: agendamentosDoDia.length,
+                        itemBuilder: (context, index) {
+                          var agendamento = agendamentosDoDia[index];
+
+                          return CardAgendamento(
+                            horario: agendamento.horario,
+                            nome: agendamento.medico.nome,
+                            especialidade: agendamento.medico.especialidade,
+                          );
+                        },
+                      );
+                    },
+                  ),
         ),
       ],
     );

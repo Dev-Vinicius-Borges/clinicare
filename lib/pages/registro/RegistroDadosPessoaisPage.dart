@@ -1,7 +1,7 @@
 import 'package:clini_care/components/registro/RegistroDadosPessoais.dart';
 import 'package:flutter/material.dart';
 
-class RegistroDadosPessoaisPage extends StatelessWidget{
+class RegistroDadosPessoaisPage extends StatelessWidget {
   const RegistroDadosPessoaisPage({super.key});
 
   @override
@@ -10,9 +10,7 @@ class RegistroDadosPessoaisPage extends StatelessWidget{
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-            color: Color.fromARGB(255, 64, 91, 230)
-        ),
+        decoration: BoxDecoration(color: Color.fromARGB(255, 64, 91, 230)),
         child: RegistroDadosPessoais(),
       ),
     );

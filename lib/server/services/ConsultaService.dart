@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:clini_care/server/Dtos/consulta/AtualizarConsultaDto.dart';
 import 'package:clini_care/server/Dtos/consulta/CriarConsultaDto.dart';
 import 'package:clini_care/server/abstracts/IConsultaInterface.dart';
@@ -14,19 +15,41 @@ class ConsultaService implements IConsultaInterface {
   }
 
   @override
-  Future<RespostaModel<ConsultaModel>> criarConsulta(CriarConsultaDto criarConsultaDto) async {
+  Future<RespostaModel<ConsultaModel>> criarConsulta(
+    CriarConsultaDto criarConsultaDto,
+  ) async {
     RespostaModel<ConsultaModel> resposta = RespostaModel<ConsultaModel>();
 
     try {
-      var novaConsulta = await _contexto
-          .from('consultas')
-          .insert({
-        "data_consulta": criarConsultaDto.data_consulta.toUtc().toIso8601String(),
-        "fk_id_cliente": criarConsultaDto.id_cliente,
-        "fk_id_medico": criarConsultaDto.id_medico,
-      })
-          .select()
-          .single();
+      var consultaExistente =
+          await _contexto
+              .from('consultas')
+              .select()
+              .eq('fk_id_cliente', criarConsultaDto.id_cliente)
+              .eq('fk_id_medico', criarConsultaDto.id_medico)
+              .eq(
+                'data_consulta',
+                criarConsultaDto.data_consulta.toUtc().toIso8601String(),
+              )
+              .maybeSingle();
+
+      if (consultaExistente != null) {
+        resposta.Status = HttpStatus.conflict;
+        resposta.Mensagem = "Já existe uma consulta agendada para essa data.";
+        return resposta;
+      }
+
+      var novaConsulta =
+          await _contexto
+              .from('consultas')
+              .insert({
+                "data_consulta":
+                    criarConsultaDto.data_consulta.toUtc().toIso8601String(),
+                "fk_id_cliente": criarConsultaDto.id_cliente,
+                "fk_id_medico": criarConsultaDto.id_medico,
+              })
+              .select()
+              .single();
 
       resposta.Dados = ConsultaModel(
         id: novaConsulta['id_consulta'],
@@ -50,7 +73,12 @@ class ConsultaService implements IConsultaInterface {
     RespostaModel<ConsultaModel> resposta = RespostaModel<ConsultaModel>();
 
     try {
-      var consulta = await _contexto.from('consultas').select().eq("id_consulta", id).single();
+      var consulta =
+          await _contexto
+              .from('consultas')
+              .select()
+              .eq("id_consulta", id)
+              .single();
 
       resposta.Dados = ConsultaModel(
         id: consulta['id_consulta'],
@@ -71,19 +99,23 @@ class ConsultaService implements IConsultaInterface {
 
   @override
   Future<RespostaModel<List<ConsultaModel>>> listarConsultas() async {
-    RespostaModel<List<ConsultaModel>> resposta = RespostaModel<List<ConsultaModel>>();
+    RespostaModel<List<ConsultaModel>> resposta =
+        RespostaModel<List<ConsultaModel>>();
 
     try {
       var consultas = await _contexto.from('consultas').select();
 
-      resposta.Dados = consultas
-          .map<ConsultaModel>((consulta) => ConsultaModel(
-        id: consulta['id_consulta'],
-        data_consulta: DateTime.parse(consulta['data_consulta']),
-        id_cliente: consulta['fk_id_cliente'],
-        id_medico: consulta['fk_id_medico'],
-      ))
-          .toList();
+      resposta.Dados =
+          consultas
+              .map<ConsultaModel>(
+                (consulta) => ConsultaModel(
+                  id: consulta['id_consulta'],
+                  data_consulta: DateTime.parse(consulta['data_consulta']),
+                  id_cliente: consulta['fk_id_cliente'],
+                  id_medico: consulta['fk_id_medico'],
+                ),
+              )
+              .toList();
 
       resposta.Mensagem = "Lista de consultas recuperada com sucesso.";
       resposta.Status = HttpStatus.ok;
@@ -96,20 +128,26 @@ class ConsultaService implements IConsultaInterface {
   }
 
   @override
-  Future<RespostaModel<ConsultaModel>> atualizarConsulta(AtualizarConsultaDto atualizarConsultaDto) async {
+  Future<RespostaModel<ConsultaModel>> atualizarConsulta(
+    AtualizarConsultaDto atualizarConsultaDto,
+  ) async {
     RespostaModel<ConsultaModel> resposta = RespostaModel<ConsultaModel>();
 
     try {
-      var consultaAtualizada = await _contexto
-          .from('consultas')
-          .update({
-        "data_consulta": atualizarConsultaDto.data_consulta.toUtc().toIso8601String(),
-        "fk_id_cliente": atualizarConsultaDto.id_cliente,
-        "fk_id_medico": atualizarConsultaDto.id_medico,
-      })
-          .eq("id_consulta", atualizarConsultaDto.id)
-          .select()
-          .single();
+      var consultaAtualizada =
+          await _contexto
+              .from('consultas')
+              .update({
+                "data_consulta":
+                    atualizarConsultaDto.data_consulta
+                        .toUtc()
+                        .toIso8601String(),
+                "fk_id_cliente": atualizarConsultaDto.id_cliente,
+                "fk_id_medico": atualizarConsultaDto.id_medico,
+              })
+              .eq("id_consulta", atualizarConsultaDto.id)
+              .select()
+              .single();
 
       resposta.Dados = ConsultaModel(
         id: consultaAtualizada['id_consulta'],
@@ -148,8 +186,11 @@ class ConsultaService implements IConsultaInterface {
   }
 
   @override
-  Future<RespostaModel<List<ConsultaModel>>> buscarConsultaPorIdUsuario(int id) async {
-    RespostaModel<List<ConsultaModel>> resposta = RespostaModel<List<ConsultaModel>>();
+  Future<RespostaModel<List<ConsultaModel>>> buscarConsultaPorIdUsuario(
+    int id,
+  ) async {
+    RespostaModel<List<ConsultaModel>> resposta =
+        RespostaModel<List<ConsultaModel>>();
 
     try {
       var consultas = await _contexto
@@ -157,18 +198,23 @@ class ConsultaService implements IConsultaInterface {
           .select()
           .eq("fk_id_cliente", id);
 
-      if(consultas.isEmpty){
+      if (consultas.isEmpty) {
         resposta.Mensagem = "Nenhuma consulta encontrada.";
         resposta.Status = HttpStatus.notFound;
         return resposta;
       }
 
-      resposta.Dados = consultas.map<ConsultaModel>((consulta) => ConsultaModel(
-        id: consulta['id_consulta'],
-        data_consulta: DateTime.parse(consulta['data_consulta']),
-        id_cliente: consulta['fk_id_cliente'],
-        id_medico: consulta['fk_id_medico'],
-      )).toList();
+      resposta.Dados =
+          consultas
+              .map<ConsultaModel>(
+                (consulta) => ConsultaModel(
+                  id: consulta['id_consulta'],
+                  data_consulta: DateTime.parse(consulta['data_consulta']),
+                  id_cliente: consulta['fk_id_cliente'],
+                  id_medico: consulta['fk_id_medico'],
+                ),
+              )
+              .toList();
 
       resposta.Mensagem = "Consultas encontradas para o usuário.";
       resposta.Status = HttpStatus.ok;
@@ -179,5 +225,4 @@ class ConsultaService implements IConsultaInterface {
 
     return resposta;
   }
-
 }

@@ -4,8 +4,7 @@ class AlterarSenhaForm extends StatefulWidget {
   const AlterarSenhaForm({super.key});
 
   @override
-  State<AlterarSenhaForm> createState() =>
-      AlterarSenhaFormState();
+  State<AlterarSenhaForm> createState() => AlterarSenhaFormState();
 }
 
 class AlterarSenhaFormState extends State<AlterarSenhaForm> {
@@ -37,7 +36,7 @@ class AlterarSenhaFormState extends State<AlterarSenhaForm> {
                 ),
                 validator:
                     (String? value) =>
-                !valueValidator(value) ? "Insira a senha" : null,
+                        !valueValidator(value) ? "Insira a senha" : null,
                 controller: senhaController,
                 decoration: const InputDecoration(
                   fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -86,7 +85,9 @@ class AlterarSenhaFormState extends State<AlterarSenhaForm> {
                 ),
                 validator:
                     (String? value) =>
-                !valueValidator(value) ? "Insira a confirmação da senha" : null,
+                        !valueValidator(value)
+                            ? "Insira a confirmação da senha"
+                            : null,
                 controller: confirmacaoSenhaController,
                 decoration: const InputDecoration(
                   fillColor: Color.fromARGB(255, 244, 245, 254),

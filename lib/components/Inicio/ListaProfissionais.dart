@@ -1,5 +1,6 @@
 import 'package:clini_care/components/Inicio/CardProfissional.dart';
-import 'package:clini_care/server/services/MedicoService.dart';
+import 'package:clini_care/server/models/HorariosDisponiveisMedicosModel.dart';
+import 'package:clini_care/server/services/HorariosDisponiveisMedicosService.dart';
 import 'package:flutter/material.dart';
 
 class ListaProfissionais extends StatefulWidget {
@@ -10,7 +11,8 @@ class ListaProfissionais extends StatefulWidget {
 }
 
 class _ListaProfissionaisState extends State<ListaProfissionais> {
-  List<Map<String, dynamic>> profissionais = [];
+  List<HorariosDisponiveisMedicosModel> profissionais = [];
+  Map<int, List<HorariosDisponiveisMedicosModel>> agrupados = {};
 
   @override
   void initState() {
@@ -19,10 +21,28 @@ class _ListaProfissionaisState extends State<ListaProfissionais> {
   }
 
   Future<void> carregarProfissionais() async {
-    List<Map<String, dynamic>> lista =
-        await MedicoService().buscarListaProfissionais();
+    var resposta =
+        await HorariosDisponiveisMedicosService().listarHorariosDisponiveis();
+
+    agrupados.clear();
+    for (var item in resposta.Dados!) {
+      agrupados.putIfAbsent(item.id_medico, () => []).add(item);
+    }
+
     setState(() {
-      profissionais = lista;
+      profissionais =
+          agrupados.entries.map((e) {
+            var primeiro = e.value.first;
+            return HorariosDisponiveisMedicosModel(
+              id_agenda: primeiro.id_agenda,
+              id_medico: primeiro.id_medico,
+              nome_medico: primeiro.nome_medico,
+              foto_medico: primeiro.foto_medico,
+              especialidade: primeiro.especialidade,
+              data_real: primeiro.data_real,
+              horario: primeiro.horario,
+            );
+          }).toList();
     });
   }
 
@@ -47,15 +67,18 @@ class _ListaProfissionaisState extends State<ListaProfissionais> {
                     itemCount: profissionais.length,
                     itemBuilder: (BuildContext context, int index) {
                       final profissional = profissionais[index];
+
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8.0),
                         child: CardProfissional(
-                          profissional['id'],
-                          profissional['nome'],
-                          profissional['especialidade'],
+                          profissional.id_medico,
+                          profissional.nome_medico,
+                          profissional.especialidade,
+                          fotoUrl: profissional.foto_medico,
                           viradoParaEsquerda: index % 2 == 0,
                           ultimoCard: index == profissionais.length - 1,
-                          fotoUrl: profissional['foto'],
+                          horariosDisponiveis:
+                              agrupados[profissional.id_medico]!,
                         ),
                       );
                     },

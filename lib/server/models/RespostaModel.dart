@@ -1,4 +1,4 @@
-class RespostaModel<T>{
+class RespostaModel<T> {
   T? Dados;
   String? Mensagem;
   int? Status;

@@ -35,7 +35,11 @@ class CardAgendamento extends StatelessWidget {
             children: [
               Text(
                 horario,
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue),
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
               ),
               Text(
                 nome,

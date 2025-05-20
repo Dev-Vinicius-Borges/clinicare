@@ -6,16 +6,18 @@ class BottomSheetContainer extends StatelessWidget {
   final VoidCallback? voltarParaBottomSheetAnterior;
 
   const BottomSheetContainer(
-      this.titulo,
-      this.conteudo, {
-        super.key,
-        this.voltarParaBottomSheetAnterior,
-      });
+    this.titulo,
+    this.conteudo, {
+    super.key,
+    this.voltarParaBottomSheetAnterior,
+  });
 
   @override
   Widget build(BuildContext context) {
     return AnimatedPadding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+      padding: EdgeInsets.only(
+        bottom: MediaQuery.of(context).viewInsets.bottom,
+      ),
       duration: const Duration(milliseconds: 150),
       curve: Curves.easeOut,
       child: Container(
@@ -44,7 +46,9 @@ class BottomSheetContainer extends StatelessWidget {
                         }
                       },
                       icon: Icon(
-                        voltarParaBottomSheetAnterior != null ? Icons.arrow_back : Icons.close,
+                        voltarParaBottomSheetAnterior != null
+                            ? Icons.arrow_back
+                            : Icons.close,
                         size: 32,
                         color: const Color.fromARGB(255, 184, 194, 246),
                       ),
@@ -67,7 +71,9 @@ class BottomSheetContainer extends StatelessWidget {
                   width: double.infinity,
                   decoration: const BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(24),
+                    ),
                   ),
                   padding: const EdgeInsets.all(16),
                   child: SingleChildScrollView(

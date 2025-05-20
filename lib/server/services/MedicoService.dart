@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:clini_care/server/Dtos/medico/AtualizarMedicoDto.dart';
 import 'package:clini_care/server/Dtos/medico/CriarMedicoDto.dart';
 import 'package:clini_care/server/abstracts/IMedicoInterface.dart';
@@ -66,7 +67,7 @@ class MedicoService implements IMedicoInterface {
       var medico =
           await _contexto.from('medicos').select().eq("id_medico", id).single();
       String fotoUrl = StorageService().getImagemUrl(
-        "profissional_${medico['nome_medico'].toString().replaceAll(" ","_").toLowerCase()}.jpg",
+        "profissional_${medico['nome_medico'].toString().replaceAll(" ", "_").toLowerCase()}.jpg",
         "profissionais",
       );
 

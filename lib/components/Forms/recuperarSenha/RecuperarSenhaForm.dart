@@ -34,8 +34,9 @@ class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
                   style: const TextStyle(
                     color: Color.fromARGB(255, 160, 173, 243),
                   ),
-                  validator: (String? value) =>
-                  !valueValidator(value) ? "Insira o e-mail." : null,
+                  validator:
+                      (String? value) =>
+                          !valueValidator(value) ? "Insira o e-mail." : null,
                   controller: emailController,
                   decoration: const InputDecoration(
                     fillColor: Color.fromARGB(255, 244, 245, 254),
@@ -43,7 +44,10 @@ class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
                     hintText: 'Insira seu e-mail vinculado a clinicare.',
                     alignLabelWithHint: true,
                     isDense: true,
-                    contentPadding: EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+                    contentPadding: EdgeInsets.symmetric(
+                      vertical: 20,
+                      horizontal: 16,
+                    ),
                     label: Text(
                       "E-mail",
                       style: TextStyle(
@@ -76,9 +80,11 @@ class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
               height: 60,
               child: TextButton(
                 onPressed: () async {
-                  Navigator.pushNamed(context, '/recuperar_senha/receber_codigo');
+                  Navigator.pushNamed(
+                    context,
+                    '/recuperar_senha/receber_codigo',
+                  );
                   if (_formKey.currentState!.validate()) {
-
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text("Preencha todos os campos.")),
@@ -123,10 +129,14 @@ class RecuperarSenhaFormState extends State<RecuperarSenhaForm> {
                       Navigator.pushNamed(context, '/login');
                     },
                     style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(EdgeInsets.zero),
+                      padding: WidgetStateProperty.all<EdgeInsets>(
+                        EdgeInsets.zero,
+                      ),
                       minimumSize: WidgetStateProperty.all<Size>(Size(0, 0)),
                       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: WidgetStateProperty.all<Color>(Colors.transparent),
+                      overlayColor: WidgetStateProperty.all<Color>(
+                        Colors.transparent,
+                      ),
                     ),
                     child: const Text(
                       " Entre na sua conta",

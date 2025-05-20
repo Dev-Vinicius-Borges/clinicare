@@ -10,6 +10,6 @@ class CriarMedicoDto {
     required this.nome,
     required this.especialidade,
     this.foto_medico,
-    this.fotoArquivo
+    this.fotoArquivo,
   });
 }

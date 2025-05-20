@@ -1,3 +1,5 @@
+import 'package:clini_care/server/Dtos/cliente/AtualizarClienteDto.dart';
+import 'package:clini_care/server/services/ClienteService.dart';
 import 'package:flutter/material.dart';
 
 class EditarDadosPessoaisForm extends StatefulWidget {
@@ -13,8 +15,50 @@ class EditarDadosPessoaisForm extends StatefulWidget {
 class EditarDadosPessoaisFormState extends State<EditarDadosPessoaisForm> {
   TextEditingController nomeController = TextEditingController();
   TextEditingController emailController = TextEditingController();
+  bool isLoading = true;
 
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    carregarDadosCliente();
+  }
+
+  Future<void> carregarDadosCliente() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      var resposta = await ClienteService().buscarClientePorId(
+        widget.id_dados_pessoais,
+      );
+      if (resposta.Status == 200 && resposta.Dados != null) {
+        setState(() {
+          nomeController.text = resposta.Dados!.nome;
+          emailController.text = resposta.Dados!.email;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Erro ao carregar dados: ${resposta.Mensagem}"),
+          ),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro ao carregar dados: $e")));
+    }
+  }
 
   bool valueValidator(String? value) {
     if (value!.isEmpty) {
@@ -25,6 +69,10 @@ class EditarDadosPessoaisFormState extends State<EditarDadosPessoaisForm> {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
     return Form(
       key: _formKey,
       child: Column(
@@ -93,7 +141,7 @@ class EditarDadosPessoaisFormState extends State<EditarDadosPessoaisForm> {
                 decoration: const InputDecoration(
                   fillColor: Color.fromARGB(255, 244, 245, 254),
                   filled: true,
-                  hintText: 'Ex.: John Doe',
+                  hintText: 'Ex.: email@exemplo.com',
                   alignLabelWithHint: true,
                   isDense: true,
                   contentPadding: EdgeInsets.symmetric(
@@ -133,6 +181,71 @@ class EditarDadosPessoaisFormState extends State<EditarDadosPessoaisForm> {
             child: TextButton(
               onPressed: () async {
                 if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  try {
+                    var clienteAtual = await ClienteService()
+                        .buscarClientePorId(widget.id_dados_pessoais);
+
+                    if (clienteAtual.Status == 200 &&
+                        clienteAtual.Dados != null) {
+                      var clienteAtualizado = AtualizarClienteDto(
+                        id: widget.id_dados_pessoais,
+                        nome: nomeController.text,
+                        email: emailController.text,
+                        data_nascimento: clienteAtual.Dados!.data_nascimento,
+                        senha: clienteAtual.Dados!.senha,
+                        foto_cliente: clienteAtual.Dados!.foto_cliente,
+                        telefone: clienteAtual.Dados!.telefone,
+                        endereco: clienteAtual.Dados!.endereco,
+                      );
+
+                      var resposta = await ClienteService().atualizarCliente(
+                        clienteAtualizado,
+                      );
+
+                      setState(() {
+                        isLoading = false;
+                      });
+
+                      if (resposta.Status == 200) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Dados atualizados com sucesso!"),
+                          ),
+                        );
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Erro ao atualizar dados: ${resposta.Mensagem}",
+                            ),
+                          ),
+                        );
+                      }
+                    } else {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Erro ao buscar dados atuais do cliente",
+                          ),
+                        ),
+                      );
+                    }
+                  } catch (e) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Erro ao atualizar dados: $e")),
+                    );
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text("Preencha todos os campos.")),
@@ -149,14 +262,17 @@ class EditarDadosPessoaisFormState extends State<EditarDadosPessoaisForm> {
                   ),
                 ),
               ),
-              child: Text(
-                "Alterar informações",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child:
+                  isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                        "Alterar informações",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
             ),
           ),
         ],

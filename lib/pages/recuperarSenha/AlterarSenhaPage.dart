@@ -1,7 +1,7 @@
 import 'package:clini_care/components/RecuperarSenha/AlterarSenha.dart';
 import 'package:flutter/material.dart';
 
-class AlterarSenhaPage extends StatelessWidget{
+class AlterarSenhaPage extends StatelessWidget {
   const AlterarSenhaPage({super.key});
 
   @override
@@ -10,10 +10,8 @@ class AlterarSenhaPage extends StatelessWidget{
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-            color: Color.fromARGB(255, 64, 91, 230)
-        ),
-        child: AlterarSenha()
+        decoration: BoxDecoration(color: Color.fromARGB(255, 64, 91, 230)),
+        child: AlterarSenha(),
       ),
     );
   }

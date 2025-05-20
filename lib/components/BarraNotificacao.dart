@@ -12,9 +12,18 @@ class _BarraNotificacaoState extends State<BarraNotificacao> {
   bool expandida = false;
 
   final List<Map<String, String>> notificacoes = [
-    {'titulo': 'Consulta marcada', 'conteudo': 'Você tem uma consulta amanhã às 14h.'},
-    {'titulo': 'Consulta cancelada', 'conteudo': 'Sua consulta para o dia X foi cancelada por N motivos'},
-    {'titulo': 'Aviso importante', 'conteudo': 'Clínica fechada neste feriado.'},
+    {
+      'titulo': 'Consulta marcada',
+      'conteudo': 'Você tem uma consulta amanhã às 14h.',
+    },
+    {
+      'titulo': 'Consulta cancelada',
+      'conteudo': 'Sua consulta para o dia X foi cancelada por N motivos',
+    },
+    {
+      'titulo': 'Aviso importante',
+      'conteudo': 'Clínica fechada neste feriado.',
+    },
   ];
 
   @override
@@ -70,10 +79,9 @@ class _BarraNotificacaoState extends State<BarraNotificacao> {
             if (expandida)
               Expanded(
                 child: ScrollConfiguration(
-                  behavior: ScrollConfiguration.of(context).copyWith(
-                    scrollbars: false,
-                    overscroll: false,
-                  ),
+                  behavior: ScrollConfiguration.of(
+                    context,
+                  ).copyWith(scrollbars: false, overscroll: false),
                   child: ListView.builder(
                     itemCount: notificacoes.length,
                     itemBuilder: (context, index) {

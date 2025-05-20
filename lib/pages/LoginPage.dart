@@ -1,7 +1,7 @@
 import 'package:clini_care/components/Login.dart';
 import 'package:flutter/material.dart';
 
-class LoginPage extends StatelessWidget{
+class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
   @override
@@ -10,9 +10,7 @@ class LoginPage extends StatelessWidget{
       body: Container(
         width: double.infinity,
         height: double.infinity,
-        decoration: BoxDecoration(
-          color: Color.fromARGB(255, 64, 91, 230)
-        ),
+        decoration: BoxDecoration(color: Color.fromARGB(255, 64, 91, 230)),
         child: Login(),
       ),
     );
