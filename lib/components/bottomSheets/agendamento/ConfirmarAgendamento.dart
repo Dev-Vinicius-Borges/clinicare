@@ -28,6 +28,7 @@ class ConfirmarAgendamento extends StatefulWidget {
 
 class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
   Map<DateTime, List<TimeOfDay>> horariosPorData = {};
+  Map<DateTime, List<TimeOfDay>> horariosOcupados = {};
   late int id_usuario;
   bool isLoading = true;
   late DateTime data_consulta;
@@ -57,7 +58,7 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
             horario.data_real.month,
             horario.data_real.day,
           );
-          
+
           TimeOfDay hora = horario.horario;
 
           if (!tempHorariosPorData.containsKey(dataNormalizada)) {
@@ -69,26 +70,26 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
         setState(() {
           horariosPorData = tempHorariosPorData;
         });
-        
+
         await buscarConsultasExistentes();
-        
+
         if (horariosPorData.isEmpty) {
           _adicionarDadosPadrao();
         }
-        
+
         setState(() {
           isLoading = false;
         });
       } else {
         _adicionarDadosPadrao();
-        
+
         setState(() {
           isLoading = false;
         });
       }
     } catch (e) {
       _adicionarDadosPadrao();
-      
+
       setState(() {
         isLoading = false;
       });
@@ -100,31 +101,31 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
       var resposta = await ConsultaService().listarConsultas();
 
       if (resposta.Status == HttpStatus.ok && resposta.Dados != null) {
-        Map<DateTime, List<TimeOfDay>> horariosPorDataCopia = Map.from(horariosPorData);
-        
+        horariosOcupados.clear();
+
         for (var consulta in resposta.Dados!) {
           if (consulta.id_medico == medico.id) {
             DateTime dataConsulta = consulta.data_consulta;
-            
-            for (var data in horariosPorDataCopia.keys) {
-              if (isSameDay(data, dataConsulta)) {
-                int hora = dataConsulta.hour;
-                int minuto = dataConsulta.minute;
 
-                horariosPorData[data]?.removeWhere(
-                  (horario) => horario.hour == hora && horario.minute == minuto,
-                );
+            DateTime dataNormalizada = DateTime(
+              dataConsulta.year,
+              dataConsulta.month,
+              dataConsulta.day,
+            );
 
-                if (horariosPorData[data]?.isEmpty ?? true) {
-                  horariosPorData.remove(data);
-                }
-              }
+            TimeOfDay horarioConsulta = TimeOfDay(
+              hour: dataConsulta.hour,
+              minute: dataConsulta.minute,
+            );
+
+            if (!horariosOcupados.containsKey(dataNormalizada)) {
+              horariosOcupados[dataNormalizada] = [];
             }
+            horariosOcupados[dataNormalizada]!.add(horarioConsulta);
           }
         }
       }
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   @override
@@ -136,15 +137,19 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
     buscarCliente();
     buscarHorariosDisponiveis();
   }
-  
+
   void _adicionarDadosPadrao() {
-    DateTime hoje = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day);
-    
+    DateTime hoje = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+    );
+
     for (int i = 0; i < 10; i++) {
       DateTime data = hoje.add(Duration(days: i));
-      
+
       if (data.weekday >= 6) continue;
-      
+
       horariosPorData[data] = [
         TimeOfDay(hour: 9, minute: 0),
         TimeOfDay(hour: 10, minute: 0),
@@ -153,6 +158,20 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
         TimeOfDay(hour: 15, minute: 0),
         TimeOfDay(hour: 16, minute: 0),
       ];
+
+      if (horariosOcupados.containsKey(data)) {
+        for (var horarioOcupado in horariosOcupados[data]!) {
+          horariosPorData[data]?.removeWhere(
+            (horario) =>
+                horario.hour == horarioOcupado.hour &&
+                horario.minute == horarioOcupado.minute,
+          );
+        }
+
+        if (horariosPorData[data]?.isEmpty ?? true) {
+          horariosPorData.remove(data);
+        }
+      }
     }
   }
 
@@ -163,11 +182,13 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
       );
       return;
     }
-    
+
     if (horariosPorData.isEmpty) {
       _adicionarDadosPadrao();
     }
-    
+
+    Navigator.pop(context);
+
     final result = await showModalBottomSheet<DateTime>(
       context: context,
       isScrollControlled: true,
@@ -180,13 +201,15 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
         );
       },
     );
-    
+
     if (result != null) {
       setState(() {
         data_consulta = result;
       });
-      
+
       _editarHorario();
+    } else {
+      _reabrirConfirmacao();
     }
   }
 
@@ -197,16 +220,26 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
       );
       return;
     }
-    
+
     List<TimeOfDay> horariosDisponiveis = [];
-    
+
     for (var data in horariosPorData.keys) {
       if (isSameDay(data, data_consulta)) {
-        horariosDisponiveis = horariosPorData[data] ?? [];
+        horariosDisponiveis = List.from(horariosPorData[data] ?? []);
         break;
       }
     }
-    
+
+    if (horariosOcupados.containsKey(data_consulta)) {
+      for (var horarioOcupado in horariosOcupados[data_consulta]!) {
+        horariosDisponiveis.removeWhere(
+          (horario) =>
+              horario.hour == horarioOcupado.hour &&
+              horario.minute == horarioOcupado.minute,
+        );
+      }
+    }
+
     if (horariosDisponiveis.isEmpty) {
       horariosDisponiveis = [
         TimeOfDay(hour: 9, minute: 0),
@@ -216,8 +249,26 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
         TimeOfDay(hour: 15, minute: 0),
         TimeOfDay(hour: 16, minute: 0),
       ];
+
+      if (horariosOcupados.containsKey(data_consulta)) {
+        for (var horarioOcupado in horariosOcupados[data_consulta]!) {
+          horariosDisponiveis.removeWhere(
+            (horario) =>
+                horario.hour == horarioOcupado.hour &&
+                horario.minute == horarioOcupado.minute,
+          );
+        }
+      }
+
+      if (horariosDisponiveis.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Não há horários disponíveis para esta data")),
+        );
+        _reabrirConfirmacao();
+        return;
+      }
     }
-    
+
     final result = await showModalBottomSheet<TimeOfDay>(
       context: context,
       isScrollControlled: true,
@@ -240,6 +291,23 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
         hora_consulta = result;
       });
     }
+
+    _reabrirConfirmacao();
+  }
+
+  void _reabrirConfirmacao() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      isDismissible: false,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return BottomSheetContainer(
+          "Confirme o agendamento",
+          ConfirmarAgendamento(medico, data_consulta, hora_consulta),
+        );
+      },
+    );
   }
 
   bool isSameDay(DateTime a, DateTime b) {
@@ -408,6 +476,32 @@ class _ConfirmarAgendamentoState extends State<ConfirmarAgendamento> {
                   hora_consulta.hour,
                   hora_consulta.minute,
                 );
+
+                bool horarioOcupadoB = false;
+                if (horariosOcupados.containsKey(data_consulta)) {
+                  for (var horarioOcupado in horariosOcupados[data_consulta]!) {
+                    if (horarioOcupado.hour == hora_consulta.hour &&
+                        horarioOcupado.minute == hora_consulta.minute) {
+                      horarioOcupadoB = true;
+                      break;
+                    }
+                  }
+                }
+
+                if (horarioOcupadoB) {
+                  setState(() {
+                    isLoading = false;
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        "Este horário já está ocupado. Por favor, escolha outro horário.",
+                      ),
+                    ),
+                  );
+                  return;
+                }
 
                 CriarConsultaDto novaConsulta = new CriarConsultaDto(
                   data_consulta: dataHoraConsulta,
