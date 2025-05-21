@@ -1,8 +1,9 @@
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
-import 'package:clini_care/components/bottomSheets/agendamento/EscolherHorarioDisponivel.dart';
 import 'package:clini_care/server/services/ConsultaService.dart';
 import 'package:clini_care/server/services/HorariosDisponiveisMedicosService.dart';
 import 'package:clini_care/server/Dtos/consulta/AtualizarConsultaDto.dart';
+import 'package:provider/provider.dart';
 
 class TrocarHorarioForm extends StatefulWidget {
   final int idConsulta;
@@ -28,11 +29,18 @@ class _TrocarHorarioFormState extends State<TrocarHorarioForm> {
   bool isLoading = true;
   List<TimeOfDay> horariosDisponiveis = [];
   TimeOfDay? horarioSelecionado;
+  late int id_cliente;
   
   @override
   void initState() {
     super.initState();
+    buscarCliente();
     _buscarHorariosDisponiveis();
+  }
+
+  void buscarCliente() {
+    id_cliente =
+    Provider.of<GerenciadorDeSessao>(context, listen: false).idUsuario!;
   }
 
   Future<void> _buscarHorariosDisponiveis() async {
@@ -89,7 +97,7 @@ class _TrocarHorarioFormState extends State<TrocarHorarioForm> {
 
       if (resposta.Status == 200 && resposta.Dados != null) {
         for (var consulta in resposta.Dados!) {
-          if (consulta.id_consulta == widget.idConsulta) continue;
+          if (consulta.id == widget.idConsulta) continue;
           
           if (consulta.id_medico == widget.idMedico && isSameDay(consulta.data_consulta, widget.dataConsulta)) {
             TimeOfDay horarioConsulta = TimeOfDay(
@@ -148,8 +156,10 @@ class _TrocarHorarioFormState extends State<TrocarHorarioForm> {
       );
 
       AtualizarConsultaDto atualizarConsultaDto = AtualizarConsultaDto(
-        id_consulta: widget.idConsulta,
+        id: widget.idConsulta,
         data_consulta: novaDataHora,
+        id_cliente: id_cliente,
+        id_medico: widget.idMedico,
       );
 
       var resposta = await ConsultaService().atualizarConsulta(atualizarConsultaDto);
@@ -199,16 +209,54 @@ class _TrocarHorarioFormState extends State<TrocarHorarioForm> {
         isLoading
             ? Center(child: CircularProgressIndicator())
             : Container(
-                height: MediaQuery.of(context).size.height * 0.4,
-                child: EscolherHorarioDisponivel(
-                  id_profissional: widget.idMedico,
-                  dataEscolhida: widget.dataConsulta,
-                  horarios: horariosDisponiveis,
-                  onHorarioSelecionado: (horario) {
-                    setState(() {
-                      horarioSelecionado = horario;
-                    });
-                  },
+                height: MediaQuery.of(context).size.height * 0.3,
+                child: Column(
+                  children: [
+                    Text(
+                      "Data: ${widget.dataConsulta.day}/${widget.dataConsulta.month}/${widget.dataConsulta.year}",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(height: 16),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: horariosDisponiveis.map((TimeOfDay horario) {
+                            final selecionado = horario == horarioSelecionado;
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  horarioSelecionado = horario;
+                                });
+                              },
+                              child: Container(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 18,
+                                  vertical: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: selecionado ? Color(0xFF585E97) : Color(0xFFE5E7FF),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '${horario.hour.toString().padLeft(2, '0')}:${horario.minute.toString().padLeft(2, '0')}',
+                                  style: TextStyle(
+                                    color: selecionado ? Colors.white : Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
         SizedBox(height: 16),
