@@ -1,12 +1,16 @@
 import 'package:clini_care/components/Forms/registro/RegistroEnderecoForm.dart';
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class RegistroEndereco extends StatelessWidget {
   const RegistroEndereco({super.key});
 
   @override
   Widget build(BuildContext context) {
+    int id_dados_pessoais =
+        Provider.of<GerenciadorDeSessao>(context, listen: false).idUsuario!;
     return Stack(
       children: [
         Align(
@@ -61,7 +65,7 @@ class RegistroEndereco extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: EdgeInsets.all(16),
-                    child: RegistroEnderecoForm(),
+                    child: RegistroEnderecoForm(id_dados_pessoais),
                   ),
                 ),
               ),

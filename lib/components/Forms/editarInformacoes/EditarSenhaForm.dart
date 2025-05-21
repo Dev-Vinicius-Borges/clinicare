@@ -37,151 +37,163 @@ class EditarSenhaFormState extends State<EditarSenhaForm> {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              height: 70,
-              child: TextFormField(
-                style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
-                validator:
-                    (String? value) =>
-                        !valueValidator(value) ? "Insira a senha antiga" : null,
-                controller: senhaAntigaController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  fillColor: Color.fromARGB(255, 244, 245, 254),
-                  filled: true,
-                  hintText: 'Ex.: ********',
-                  alignLabelWithHint: true,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator:
+                  (String? value) =>
+                      !valueValidator(value) ? "Insira a senha antiga" : null,
+              controller: senhaAntigaController,
+              obscureText: true,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: ********',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                label: Text(
+                  "Senha antiga",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
                   ),
-                  label: Text(
-                    "Senha antiga",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 160, 173, 243),
-                      fontSize: 18,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
                 ),
               ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              height: 70,
-              child: TextFormField(
-                style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
-                validator:
-                    (String? value) =>
-                        !valueValidator(value) ? "Insira a nova senha" : null,
-                controller: novaSenhaController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  fillColor: Color.fromARGB(255, 244, 245, 254),
-                  filled: true,
-                  hintText: 'Ex.: ********',
-                  alignLabelWithHint: true,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator:
+                  (String? value) =>
+                      !valueValidator(value) ? "Insira a nova senha" : null,
+              controller: novaSenhaController,
+              obscureText: true,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: ********',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                label: Text(
+                  "Nova senha",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
                   ),
-                  label: Text(
-                    "Nova senha",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 160, 173, 243),
-                      fontSize: 18,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
                 ),
               ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              height: 70,
-              child: TextFormField(
-                style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
-                validator: (String? value) {
-                  if (!valueValidator(value)) {
-                    return "Confirme a nova senha";
-                  }
-                  if (value != novaSenhaController.text) {
-                    return "As senhas não coincidem";
-                  }
-                  return null;
-                },
-                controller: confirmacaoSenhaController,
-                obscureText: true,
-                decoration: InputDecoration(
-                  fillColor: Color.fromARGB(255, 244, 245, 254),
-                  filled: true,
-                  hintText: 'Ex.: ********',
-                  alignLabelWithHint: true,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator: (String? value) {
+                if (!valueValidator(value)) {
+                  return "Confirme a nova senha";
+                }
+                if (value != novaSenhaController.text) {
+                  return "As senhas não coincidem";
+                }
+                return null;
+              },
+              controller: confirmacaoSenhaController,
+              obscureText: true,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: ********',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                label: Text(
+                  "Confirmar nova senha",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
                   ),
-                  label: Text(
-                    "Confirmar nova senha",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 160, 173, 243),
-                      fontSize: 18,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
                 ),
               ),
             ),

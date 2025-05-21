@@ -1,18 +1,15 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:clini_care/server/Dtos/cliente/AtualizarClienteDto.dart';
 import 'package:clini_care/server/Dtos/endereco/CriarEnderecoDto.dart';
+import 'package:clini_care/server/Dtos/cliente/AtualizarClienteDto.dart';
 import 'package:clini_care/server/services/ClienteService.dart';
 import 'package:clini_care/server/services/EnderecoService.dart';
-import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
-import 'package:provider/provider.dart';
 
 class RegistroEnderecoForm extends StatefulWidget {
-  const RegistroEnderecoForm({super.key});
+  final int id_dados_pessoais;
+
+  const RegistroEnderecoForm(this.id_dados_pessoais, {super.key});
 
   @override
   State<RegistroEnderecoForm> createState() => RegistroEnderecoFormState();
@@ -22,16 +19,12 @@ class RegistroEnderecoFormState extends State<RegistroEnderecoForm> {
   TextEditingController cepController = TextEditingController();
   TextEditingController ruaController = TextEditingController();
   TextEditingController numeroController = TextEditingController();
+  TextEditingController bairroController = TextEditingController();
   TextEditingController cidadeController = TextEditingController();
-  late int? id_usuario;
-
-  @override
-  void initState() {
-    super.initState();
-
-    id_usuario =
-        Provider.of<GerenciadorDeSessao>(context, listen: false).idUsuario!;
-  }
+  TextEditingController estadoController = TextEditingController();
+  TextEditingController complementoController = TextEditingController();
+  bool isLoading = false;
+  bool buscandoCep = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -42,342 +35,407 @@ class RegistroEnderecoFormState extends State<RegistroEnderecoForm> {
     return true;
   }
 
-  buscarEndereco(String cep) async {
-    final url = Uri.https("cep.awesomeapi.com.br", "json/$cep");
-    var response = await http.get(url);
-
-    if (response.statusCode != 200) {
+  Future<void> buscarCep(String cep) async {
+    if (cep.length != 8) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("CEP deve ter 8 dígitos")),
+      );
       return;
     }
 
-    final dados = jsonDecode(response.body);
+    setState(() {
+      buscandoCep = true;
+    });
 
-    ruaController.text = dados['address_name'];
-    cidadeController.text = dados['city'];
+    try {
+      var url = Uri.parse('https://viacep.com.br/ws/$cep/json/');
+      var response = await http.get(url);
+
+      setState(() {
+        buscandoCep = false;
+      });
+
+      if (response.statusCode == 200) {
+        var data = jsonDecode(response.body);
+
+        if (data.containsKey('erro')) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("CEP não encontrado")),
+          );
+          return;
+        }
+
+        setState(() {
+          ruaController.text = data['logradouro'] ?? '';
+          bairroController.text = data['bairro'] ?? '';
+          cidadeController.text = data['localidade'] ?? '';
+          estadoController.text = data['uf'] ?? '';
+        });
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Erro ao buscar CEP")),
+        );
+      }
+    } catch (e) {
+      setState(() {
+        buscandoCep = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Erro ao buscar CEP: $e")),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: 70,
-                child: TextFormField(
-                  style: const TextStyle(
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator: (String? value) =>
+                  !valueValidator(value) ? "Insira o CEP" : null,
+              controller: cepController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: 12345678',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                label: Text(
+                  "CEP",
+                  style: TextStyle(
                     color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
                   ),
-                  validator: (String? value) {
-                    if (!valueValidator(value)) {
-                      return "Insira o CEP.";
-                    }
-                    if (value!.length < 8 || value.length > 8) {
-                      return "Digite o CEP corretamente.";
-                    }
+                ),
+                suffixIcon: buscandoCep
+                    ? Container(
+                        width: 24,
+                        height: 24,
+                        padding: EdgeInsets.all(6),
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Color.fromARGB(255, 160, 173, 243),
+                        ),
+                      )
+                    : IconButton(
+                        icon: Icon(Icons.search),
+                        onPressed: () => buscarCep(cepController.text),
+                        color: Color.fromARGB(255, 160, 173, 243),
+                      ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator: (String? value) =>
+                  !valueValidator(value) ? "Insira a rua" : null,
+              controller: ruaController,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: Rua das Flores',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                label: Text(
+                  "Rua",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator: (String? value) =>
+                  !valueValidator(value) ? "Insira o número" : null,
+              controller: numeroController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: 123',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                label: Text(
+                  "Número",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator: (String? value) =>
+                  !valueValidator(value) ? "Insira a cidade" : null,
+              controller: cidadeController,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: São Paulo',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
+                ),
+                label: Text(
+                  "Cidade",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
+                  ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
+                ),
+              ),
+            ),
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 60,
+            child: TextButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    isLoading = true;
+                  });
 
-                    return null;
-                  },
-                  controller: cepController,
-                  onChanged: (cepDigitado) {
-                    buscarEndereco(cepDigitado);
-                  },
-                  decoration: const InputDecoration(
-                    fillColor: Color.fromARGB(255, 244, 245, 254),
-                    filled: true,
-                    hintText: 'Ex.: 12345678',
-                    alignLabelWithHint: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 16,
-                    ),
-                    label: Text(
-                      "CEP",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 160, 173, 243),
-                        fontSize: 18,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: 70,
-                child: TextFormField(
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 160, 173, 243),
-                  ),
-                  validator:
-                      (String? value) =>
-                          !valueValidator(value) ? "Insira a cidade" : null,
-                  controller: cidadeController,
-                  decoration: const InputDecoration(
-                    fillColor: Color.fromARGB(255, 244, 245, 254),
-                    filled: true,
-                    hintText: 'Ex.: Cidade X',
-                    alignLabelWithHint: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 16,
-                    ),
-                    label: Text(
-                      "Cidade",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 160, 173, 243),
-                        fontSize: 18,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: 70,
-                child: TextFormField(
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 160, 173, 243),
-                  ),
-                  validator:
-                      (String? value) =>
-                          !valueValidator(value) ? "Insira a rua" : null,
-                  controller: ruaController,
-                  decoration: const InputDecoration(
-                    fillColor: Color.fromARGB(255, 244, 245, 254),
-                    filled: true,
-                    hintText: 'Ex.: Rua X',
-                    alignLabelWithHint: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 16,
-                    ),
-                    label: Text(
-                      "Rua",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 160, 173, 243),
-                        fontSize: 18,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: 70,
-                child: TextFormField(
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 160, 173, 243),
-                  ),
-                  validator:
-                      (String? value) =>
-                          !valueValidator(value) ? "Insira o número" : null,
-                  controller: numeroController,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    FilteringTextInputFormatter.digitsOnly,
-                  ],
-                  decoration: const InputDecoration(
-                    fillColor: Color.fromARGB(255, 244, 245, 254),
-                    filled: true,
-                    hintText: 'Ex.: XXX',
-                    alignLabelWithHint: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 16,
-                    ),
-                    label: Text(
-                      "Número",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 160, 173, 243),
-                        fontSize: 18,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: TextButton(
-                onPressed: () async {
-                  if (_formKey.currentState!.validate()) {
-                    var clienteEncontrado = await ClienteService()
-                        .buscarClientePorId(id_usuario!);
-
-                    CriarEnderecoDto novoEndereco = new CriarEnderecoDto(
+                  try {
+                    CriarEnderecoDto novoEndereco = CriarEnderecoDto(
                       cep: int.parse(cepController.text),
                       rua: ruaController.text,
                       numero: numeroController.text,
                       cidade: cidadeController.text,
                     );
 
-                    var criarEndereco = await EnderecoService().criarEndereco(
+                    var resposta = await EnderecoService().criarEndereco(
                       novoEndereco,
                     );
 
-                    AtualizarClienteDto clienteAtt = new AtualizarClienteDto(
-                      id: id_usuario!,
-                      nome: clienteEncontrado.Dados!.nome,
-                      email: clienteEncontrado.Dados!.email,
-                      data_nascimento: clienteEncontrado.Dados!.data_nascimento,
-                      senha: clienteEncontrado.Dados!.senha,
-                      foto_cliente: clienteEncontrado.Dados!.foto_cliente,
-                      telefone: clienteEncontrado.Dados!.telefone,
-                      endereco: criarEndereco.Dados!.id,
-                    );
+                    if (resposta.Status == 201 && resposta.Dados != null) {
+                      var clienteAtual = await ClienteService()
+                          .buscarClientePorId(widget.id_dados_pessoais);
 
-                    var atualizarCliente = await ClienteService()
-                        .atualizarCliente(clienteAtt);
+                      if (clienteAtual.Status == 200 &&
+                          clienteAtual.Dados != null) {
+                        var clienteAtualizado = AtualizarClienteDto(
+                          id: widget.id_dados_pessoais,
+                          nome: clienteAtual.Dados!.nome,
+                          email: clienteAtual.Dados!.email,
+                          data_nascimento: clienteAtual.Dados!.data_nascimento,
+                          senha: clienteAtual.Dados!.senha,
+                          foto_cliente: clienteAtual.Dados!.foto_cliente,
+                          telefone: clienteAtual.Dados!.telefone,
+                          endereco: resposta.Dados!.id,
+                        );
 
-                    if (atualizarCliente.Status == HttpStatus.ok) {
-                      Navigator.pushNamed(context, "/registro/seguranca");
+                        var respostaCliente = await ClienteService()
+                            .atualizarCliente(clienteAtualizado);
+
+                        setState(() {
+                          isLoading = false;
+                        });
+
+                        if (respostaCliente.Status == 200) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Endereço registrado com sucesso!"),
+                            ),
+                          );
+                          Navigator.pushNamed(
+                            context,
+                            '/registro/seguranca',
+                            arguments: widget.id_dados_pessoais,
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                "Erro ao atualizar cliente: ${respostaCliente.Mensagem}",
+                              ),
+                            ),
+                          );
+                        }
+                      } else {
+                        setState(() {
+                          isLoading = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text("Erro ao buscar dados do cliente"),
+                          ),
+                        );
+                      }
+                    } else {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            "Erro ao criar endereço: ${resposta.Mensagem}",
+                          ),
+                        ),
+                      );
                     }
-                  } else {
+                  } catch (e) {
+                    setState(() {
+                      isLoading = false;
+                    });
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Preencha todos os campos.")),
+                      SnackBar(content: Text("Erro ao registrar endereço: $e")),
                     );
                   }
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll<Color>(
-                    Color.fromARGB(255, 85, 103, 254),
-                  ),
-                  shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Preencha todos os campos obrigatórios."),
                     ),
-                  ),
+                  );
+                }
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll<Color>(
+                  Color.fromARGB(255, 85, 103, 254),
                 ),
-                child: Text(
-                  "Continuar",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
+                shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
                 ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Já tem uma conta?",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(
-                        EdgeInsets.zero,
-                      ),
-                      minimumSize: WidgetStateProperty.all<Size>(Size(0, 0)),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: WidgetStateProperty.all<Color>(
-                        Colors.transparent,
-                      ),
-                    ),
-                    child: const Text(
-                      " Entre na sua conta",
+              child: isLoading
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                      "Continuar",
                       style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  ),
-                ],
-              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

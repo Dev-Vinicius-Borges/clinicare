@@ -18,6 +18,7 @@ class LoginForm extends StatefulWidget {
 class LoginFormState extends State<LoginForm> {
   TextEditingController emailController = TextEditingController();
   TextEditingController senhaController = TextEditingController();
+  bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -36,99 +37,108 @@ class LoginFormState extends State<LoginForm> {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: 70,
-                child: TextFormField(
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 160, 173, 243),
+              padding: EdgeInsets.only(bottom: 16),
+              child: TextFormField(
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 160, 173, 243),
+                ),
+                validator:
+                    (String? value) =>
+                        !valueValidator(value) ? "Insira o e-mail" : null,
+                controller: emailController,
+                decoration: const InputDecoration(
+                  fillColor: Color.fromARGB(255, 244, 245, 254),
+                  filled: true,
+                  hintText: 'Ex.: John@Doe.com',
+                  alignLabelWithHint: true,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 16,
                   ),
-                  validator:
-                      (String? value) =>
-                          !valueValidator(value) ? "Insira o e-mail" : null,
-                  controller: emailController,
-                  decoration: const InputDecoration(
-                    fillColor: Color.fromARGB(255, 244, 245, 254),
-                    filled: true,
-                    hintText: 'Ex.: John@Doe.com',
-                    alignLabelWithHint: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 16,
+                  label: Text(
+                    "E-mail",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 160, 173, 243),
+                      fontSize: 18,
                     ),
-                    label: Text(
-                      "E-mail",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 160, 173, 243),
-                        fontSize: 18,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  errorStyle: TextStyle(
+                    color: Colors.red,
                   ),
                 ),
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: 70,
-                child: TextFormField(
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 160, 173, 243),
+              padding: EdgeInsets.only(bottom: 16),
+              child: TextFormField(
+                style: const TextStyle(
+                  color: Color.fromARGB(255, 160, 173, 243),
+                ),
+                validator:
+                    (String? value) =>
+                        !valueValidator(value) ? "Insira a senha." : null,
+                controller: senhaController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  fillColor: Color.fromARGB(255, 244, 245, 254),
+                  filled: true,
+                  hintText: '********',
+                  alignLabelWithHint: true,
+                  isDense: true,
+                  contentPadding: EdgeInsets.symmetric(
+                    vertical: 20,
+                    horizontal: 16,
                   ),
-                  validator:
-                      (String? value) =>
-                          !valueValidator(value) ? "Insira a senha." : null,
-                  controller: senhaController,
-                  decoration: const InputDecoration(
-                    fillColor: Color.fromARGB(255, 244, 245, 254),
-                    filled: true,
-                    hintText: '********',
-                    alignLabelWithHint: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 16,
+                  label: Text(
+                    "Senha",
+                    style: TextStyle(
+                      color: Color.fromARGB(255, 160, 173, 243),
+                      fontSize: 18,
                     ),
-                    label: Text(
-                      "Senha",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 160, 173, 243),
-                        fontSize: 18,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  focusedErrorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.red),
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide.none,
+                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                  ),
+                  errorStyle: TextStyle(
+                    color: Colors.red,
                   ),
                 ),
               ),
@@ -139,26 +149,44 @@ class LoginFormState extends State<LoginForm> {
               child: TextButton(
                 onPressed: () async {
                   if (_formKey.currentState!.validate()) {
-                    var bytes = utf8.encode(senhaController.text);
-                    var digest = sha256.convert(bytes);
+                    setState(() {
+                      isLoading = true;
+                    });
+                    
+                    try {
+                      var bytes = utf8.encode(senhaController.text);
+                      var digest = sha256.convert(bytes);
 
-                    LoginDto formLogin = new LoginDto(
-                      email: emailController.text,
-                      senha: digest.toString(),
-                    );
+                      LoginDto formLogin = LoginDto(
+                        email: emailController.text,
+                        senha: digest.toString(),
+                      );
 
-                    var login = await ClienteService().fazerLogin(formLogin);
+                      var login = await ClienteService().fazerLogin(formLogin);
 
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(login.Mensagem.toString())),
-                    );
+                      setState(() {
+                        isLoading = false;
+                      });
 
-                    if (login.Status == HttpStatus.accepted) {
-                      Provider.of<GerenciadorDeSessao>(
-                        context,
-                        listen: false,
-                      ).setIdUsuario(login.Dados!.id);
-                      Navigator.pushNamed(context, "/inicio");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(login.Mensagem.toString())),
+                      );
+
+                      if (login.Status == HttpStatus.accepted) {
+                        Provider.of<GerenciadorDeSessao>(
+                          context,
+                          listen: false,
+                        ).setIdUsuario(login.Dados!.id);
+                        Navigator.pushNamed(context, "/inicio");
+                      }
+                    } catch (e) {
+                      setState(() {
+                        isLoading = false;
+                      });
+                      
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text("Erro ao fazer login: $e")),
+                      );
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -176,14 +204,16 @@ class LoginFormState extends State<LoginForm> {
                     ),
                   ),
                 ),
-                child: Text(
-                  "Entrar",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+                child: isLoading
+                    ? CircularProgressIndicator(color: Colors.white)
+                    : Text(
+                        "Entrar",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
               ),
             ),
             Padding(

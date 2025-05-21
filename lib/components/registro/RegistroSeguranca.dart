@@ -1,12 +1,15 @@
 import 'package:clini_care/components/Forms/registro/RegistroSegurancaForm.dart';
+import 'package:clini_care/server/session/configuracao.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class RegistroSeguranca extends StatelessWidget {
   const RegistroSeguranca({super.key});
 
   @override
   Widget build(BuildContext context) {
+    int id_dados_pessoais = Provider.of<GerenciadorDeSessao>(context,listen: false).idUsuario!;
     return Stack(
       children: [
         Align(
@@ -61,7 +64,7 @@ class RegistroSeguranca extends StatelessWidget {
                   ),
                   child: Padding(
                     padding: EdgeInsets.all(16),
-                    child: RegistroSegurancaForm(),
+                    child: RegistroSegurancaForm(id_dados_pessoais),
                   ),
                 ),
               ),

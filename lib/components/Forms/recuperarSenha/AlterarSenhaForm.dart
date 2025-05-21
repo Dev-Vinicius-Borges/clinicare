@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 
 class AlterarSenhaForm extends StatefulWidget {
-  const AlterarSenhaForm({super.key});
+  AlterarSenhaForm({super.key});
 
   @override
   State<AlterarSenhaForm> createState() => AlterarSenhaFormState();
 }
 
 class AlterarSenhaFormState extends State<AlterarSenhaForm> {
-  TextEditingController senhaController = TextEditingController();
+  TextEditingController novaSenhaController = TextEditingController();
   TextEditingController confirmacaoSenhaController = TextEditingController();
+  bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -20,6 +21,10 @@ class AlterarSenhaFormState extends State<AlterarSenhaForm> {
     return true;
   }
 
+  bool senhasIguaisValidator() {
+    return novaSenhaController.text == confirmacaoSenhaController.text;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -27,102 +32,108 @@ class AlterarSenhaFormState extends State<AlterarSenhaForm> {
       child: Column(
         children: [
           Padding(
-            padding: EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              height: 70,
-              child: TextFormField(
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 160, 173, 243),
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator:
+                  (String? value) =>
+                      !valueValidator(value) ? "Insira a nova senha" : null,
+              controller: novaSenhaController,
+              obscureText: true,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: ********',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
                 ),
-                validator:
-                    (String? value) =>
-                        !valueValidator(value) ? "Insira a senha" : null,
-                controller: senhaController,
-                decoration: const InputDecoration(
-                  fillColor: Color.fromARGB(255, 244, 245, 254),
-                  filled: true,
-                  hintText: 'Ex.: ********',
-                  alignLabelWithHint: true,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
-                  ),
-                  label: Text(
-                    "Nova senha",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 160, 173, 243),
-                      fontSize: 18,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                label: Text(
+                  "Nova senha",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
                   ),
                 ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(color: Colors.red),
               ),
             ),
           ),
           Padding(
-            padding: EdgeInsets.only(bottom: 8),
-            child: SizedBox(
-              height: 70,
-              child: TextFormField(
-                style: const TextStyle(
-                  color: Color.fromARGB(255, 160, 173, 243),
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator: (String? value) {
+                if (!valueValidator(value)) {
+                  return "Confirme a nova senha";
+                }
+                if (value != novaSenhaController.text) {
+                  return "As senhas não coincidem";
+                }
+                return null;
+              },
+              controller: confirmacaoSenhaController,
+              obscureText: true,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: ********',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
                 ),
-                validator:
-                    (String? value) =>
-                        !valueValidator(value)
-                            ? "Insira a confirmação da senha"
-                            : null,
-                controller: confirmacaoSenhaController,
-                decoration: const InputDecoration(
-                  fillColor: Color.fromARGB(255, 244, 245, 254),
-                  filled: true,
-                  hintText: 'Ex.: ********',
-                  alignLabelWithHint: true,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(
-                    vertical: 20,
-                    horizontal: 16,
-                  ),
-                  label: Text(
-                    "Confirmação da senha",
-                    style: TextStyle(
-                      color: Color.fromARGB(255, 160, 173, 243),
-                      fontSize: 18,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.red),
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
-                  ),
-                  disabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide.none,
-                    borderRadius: BorderRadius.all(Radius.circular(12)),
+                label: Text(
+                  "Confirmar nova senha",
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 160, 173, 243),
+                    fontSize: 18,
                   ),
                 ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(color: Colors.red),
               ),
             ),
           ),
@@ -131,11 +142,28 @@ class AlterarSenhaFormState extends State<AlterarSenhaForm> {
             height: 60,
             child: TextButton(
               onPressed: () async {
-                Navigator.pushNamed(context, '/inicio');
                 if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                  try {
+                    setState(() {
+                      isLoading = false;
+                    });
+                  } catch (e) {
+                    setState(() {
+                      isLoading = false;
+                    });
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Erro ao alterar senha: $e")),
+                    );
+                  }
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text("Preencha todos os campos.")),
+                    SnackBar(
+                      content: Text("Preencha todos os campos corretamente."),
+                    ),
                   );
                 }
               },
@@ -149,53 +177,17 @@ class AlterarSenhaFormState extends State<AlterarSenhaForm> {
                   ),
                 ),
               ),
-              child: Text(
-                "Alterar senha",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text(
-                  "Já tem uma conta?",
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  style: ButtonStyle(
-                    padding: WidgetStateProperty.all<EdgeInsets>(
-                      EdgeInsets.zero,
-                    ),
-                    minimumSize: WidgetStateProperty.all<Size>(Size(0, 0)),
-                    tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    overlayColor: WidgetStateProperty.all<Color>(
-                      Colors.transparent,
-                    ),
-                  ),
-                  child: const Text(
-                    " Entre na sua conta",
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ),
-              ],
+              child:
+                  isLoading
+                      ? CircularProgressIndicator(color: Colors.white)
+                      : Text(
+                        "Alterar senha",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
             ),
           ),
         ],

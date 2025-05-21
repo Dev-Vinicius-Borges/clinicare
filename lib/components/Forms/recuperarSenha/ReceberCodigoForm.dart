@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ReceberCodigoForm extends StatefulWidget {
+
   const ReceberCodigoForm({super.key});
 
   @override
@@ -9,6 +10,7 @@ class ReceberCodigoForm extends StatefulWidget {
 
 class ReceberCodigoFormState extends State<ReceberCodigoForm> {
   TextEditingController codigoController = TextEditingController();
+  bool isLoading = false;
 
   final _formKey = GlobalKey<FormState>();
 
@@ -21,137 +23,102 @@ class ReceberCodigoFormState extends State<ReceberCodigoForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Padding(
-              padding: EdgeInsets.only(bottom: 8),
-              child: SizedBox(
-                height: 70,
-                child: TextFormField(
-                  style: const TextStyle(
-                    color: Color.fromARGB(255, 160, 173, 243),
-                  ),
-                  validator:
-                      (String? value) =>
-                          !valueValidator(value) ? "Insira o código." : null,
-                  controller: codigoController,
-                  decoration: const InputDecoration(
-                    fillColor: Color.fromARGB(255, 244, 245, 254),
-                    filled: true,
-                    hintText: 'EX.: XXX-XXX',
-                    alignLabelWithHint: true,
-                    isDense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 20,
-                      horizontal: 16,
-                    ),
-                    label: Text(
-                      "Código",
-                      style: TextStyle(
-                        color: Color.fromARGB(255, 160, 173, 243),
-                        fontSize: 18,
-                      ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.red),
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(Radius.circular(12)),
-                    ),
-                  ),
+    return Form(
+      key: _formKey,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(bottom: 16),
+            child: TextFormField(
+              style: TextStyle(color: Color.fromARGB(255, 160, 173, 243)),
+              validator: (String? value) =>
+                  !valueValidator(value) ? "Insira o código" : null,
+              controller: codigoController,
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 244, 245, 254),
+                filled: true,
+                hintText: 'Ex.: 123456',
+                alignLabelWithHint: true,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(
+                  vertical: 20,
+                  horizontal: 16,
                 ),
-              ),
-            ),
-            SizedBox(
-              width: double.infinity,
-              height: 60,
-              child: TextButton(
-                onPressed: () async {
-                  Navigator.pushNamed(
-                    context,
-                    '/recuperar_senha/criar_nova_senha',
-                  );
-                  if (_formKey.currentState!.validate()) {
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Preencha todos os campos.")),
-                    );
-                  }
-                },
-                style: ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll<Color>(
-                    Color.fromARGB(255, 85, 103, 254),
-                  ),
-                  shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-                child: Text(
-                  "Validar código",
+                label: Text(
+                  "Código",
                   style: TextStyle(
-                    color: Colors.white,
+                    color: Color.fromARGB(255, 160, 173, 243),
                     fontSize: 18,
-                    fontWeight: FontWeight.w600,
                   ),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                focusedErrorBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.red),
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                disabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.all(Radius.circular(12)),
+                ),
+                errorStyle: TextStyle(
+                  color: Colors.red,
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    "Já tem uma conta?",
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
+          ),
+          SizedBox(
+            width: double.infinity,
+            height: 60,
+            child: TextButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  setState(() {
+                    isLoading = true;
+                  });
+
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text("Preencha o campo de código."),
                     ),
+                  );
+                }
+              },
+              style: ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll<Color>(
+                  Color.fromARGB(255, 85, 103, 254),
+                ),
+                shape: WidgetStatePropertyAll<RoundedRectangleBorder>(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/login');
-                    },
-                    style: ButtonStyle(
-                      padding: WidgetStateProperty.all<EdgeInsets>(
-                        EdgeInsets.zero,
-                      ),
-                      minimumSize: WidgetStateProperty.all<Size>(Size(0, 0)),
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      overlayColor: WidgetStateProperty.all<Color>(
-                        Colors.transparent,
-                      ),
-                    ),
-                    child: const Text(
-                      " Entre na sua conta",
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ),
-                ],
+                ),
               ),
+              child: isLoading
+                  ? CircularProgressIndicator(color: Colors.white)
+                  : Text(
+                      "Validar código",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
