@@ -69,7 +69,7 @@ class _ContaState extends State<Conta> {
       children: [
         Row(
           children: [
-            if (icon != null) Icon(icon, color: Colors.deepPurple),
+            if (icon != null) Icon(icon, color: Color.fromARGB(255, 64, 91, 230)),
             if (icon != null) SizedBox(width: 8),
             Text(
               title,
@@ -109,13 +109,13 @@ class _ContaState extends State<Conta> {
         children: [
           Text(
             label,
-            style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 2),
           Text(
             value,
             style: TextStyle(
-              fontSize: 14,
+              fontSize: 16,
               color: isGray ? Colors.grey : Colors.black,
             ),
           ),
@@ -185,7 +185,8 @@ class _ContaState extends State<Conta> {
     }
 
     return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
+      scrollDirection: Axis.vertical,
+      padding: EdgeInsets.only(bottom: 140),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -194,7 +195,7 @@ class _ContaState extends State<Conta> {
             children: [
               CircleAvatar(
                 radius: 40,
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: Color.fromARGB(255, 64, 91, 230),
                 child: Icon(Icons.person, color: Colors.white, size: 40),
               ),
               SizedBox(width: 16),

@@ -164,12 +164,13 @@ class _CardProfissionalState extends State<CardProfissional> {
     return Container(
       width: double.infinity,
       height: 200,
+      margin: widget.ultimoCard ? EdgeInsets.only(bottom: 140) : EdgeInsets.zero,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             spreadRadius: 2,
             blurRadius: 8,
             offset: Offset(0, 4),

@@ -8,12 +8,14 @@ class EscolherHorarioDisponivel extends StatefulWidget {
   final int id_profissional;
   final DateTime dataEscolhida;
   final List<TimeOfDay> horarios;
+  final Function(TimeOfDay)? onHorarioSelecionado;
 
   EscolherHorarioDisponivel({
     super.key,
     required this.dataEscolhida,
     required this.id_profissional,
     required this.horarios,
+    this.onHorarioSelecionado,
   });
 
   @override
@@ -58,6 +60,10 @@ class _EscolherHorarioDisponivelState extends State<EscolherHorarioDisponivel> {
                       setState(() {
                         horarioSelecionado = horario;
                       });
+                      
+                      if (widget.onHorarioSelecionado != null) {
+                        widget.onHorarioSelecionado!(horario);
+                      }
                     },
                     child: Container(
                       padding: EdgeInsets.symmetric(

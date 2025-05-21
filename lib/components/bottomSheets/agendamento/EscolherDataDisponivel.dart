@@ -143,7 +143,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                 return Center(
                   child: Text(
                     '${day.day}',
-                    style: TextStyle(color: Colors.grey.withValues(alpha:0.5)),
+                    style: TextStyle(color: Colors.grey.withValues(alpha: 0.5)),
                   ),
                 );
               },
@@ -169,7 +169,7 @@ class _EscolherDataDisponivelState extends State<EscolherDataDisponivel> {
                   Text(
                     dataEscolhida != null
                         ? DateFormat('dd/MM/yyyy').format(dataEscolhida!)
-                        : 'Nenhuma data selecionada',
+                        : 'dd/MM/yyyy',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 20,
