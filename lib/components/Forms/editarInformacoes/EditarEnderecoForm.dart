@@ -31,7 +31,6 @@ class EditarEnderecoFormState extends State<EditarEnderecoForm> {
   @override
   void initState() {
     super.initState();
-    // Carregar dados atuais do endereço
     carregarDadosEndereco();
   }
 
@@ -77,7 +76,6 @@ class EditarEnderecoFormState extends State<EditarEnderecoForm> {
           setState(() {
             isLoading = false;
           });
-          // Cliente não tem endereço associado
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
@@ -159,7 +157,6 @@ class EditarEnderecoFormState extends State<EditarEnderecoForm> {
       });
 
       try {
-        // Verificar se já existe um id de endereço
         if (id_endereco != null) {
           var atualizarEnderecoDto = AtualizarEnderecoDto(
             id: id_endereco!,

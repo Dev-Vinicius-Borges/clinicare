@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:clini_care/components/BottomSheetContainer.dart';
+import 'package:clini_care/components/TrocarMedicoForm.dart';
+import 'package:clini_care/components/TrocarDataForm.dart';
+import 'package:clini_care/components/TrocarHorarioForm.dart';
 
 class CardAgendamento extends StatefulWidget {
   final String horario;
@@ -6,10 +10,11 @@ class CardAgendamento extends StatefulWidget {
   final String especialidade;
   final String? fotoMedico;
   final int idConsulta;
+  final int idMedico;
+  final DateTime dataConsulta;
+  final TimeOfDay horaConsulta;
   final Function? onCancelar;
-  final Function? onTrocarMedico;
-  final Function? onTrocarHorario;
-  final Function? onTrocarData;
+  final Function? onAtualizar;
 
   const CardAgendamento({
     required this.horario,
@@ -17,10 +22,11 @@ class CardAgendamento extends StatefulWidget {
     required this.especialidade,
     this.fotoMedico,
     required this.idConsulta,
+    required this.idMedico,
+    required this.dataConsulta,
+    required this.horaConsulta,
     this.onCancelar,
-    this.onTrocarMedico,
-    this.onTrocarHorario,
-    this.onTrocarData,
+    this.onAtualizar,
     super.key,
   });
 
@@ -32,86 +38,136 @@ class _CardAgendamentoState extends State<CardAgendamento> {
   void _mostrarMenuOpcoes() {
     showModalBottomSheet(
       context: context,
-      builder:
-          (context) => Container(
-            padding: EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  leading: Icon(Icons.calendar_today, color: Colors.blue),
-                  title: Text('Trocar data'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (widget.onTrocarData != null) {
-                      widget.onTrocarData!();
-                    }
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.access_time, color: Colors.blue),
-                  title: Text('Trocar horário'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (widget.onTrocarHorario != null) {
-                      widget.onTrocarHorario!();
-                    }
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.person, color: Colors.blue),
-                  title: Text('Trocar médico'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    if (widget.onTrocarMedico != null) {
-                      widget.onTrocarMedico!();
-                    }
-                  },
-                ),
-                Divider(),
-                ListTile(
-                  leading: Icon(Icons.cancel, color: Colors.red),
-                  title: Text(
-                    'Cancelar consulta',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _confirmarCancelamento();
-                  },
-                ),
-              ],
+      builder: (context) => Container(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: Icon(Icons.calendar_today, color: Colors.blue),
+              title: Text('Trocar data'),
+              onTap: () {
+                Navigator.pop(context);
+                _trocarData();
+              },
             ),
-          ),
+            ListTile(
+              leading: Icon(Icons.access_time, color: Colors.blue),
+              title: Text('Trocar horário'),
+              onTap: () {
+                Navigator.pop(context);
+                _trocarHorario();
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.person, color: Colors.blue),
+              title: Text('Trocar médico'),
+              onTap: () {
+                Navigator.pop(context);
+                _trocarMedico();
+              },
+            ),
+            Divider(),
+            ListTile(
+              leading: Icon(Icons.cancel, color: Colors.red),
+              title: Text('Cancelar consulta', style: TextStyle(color: Colors.red)),
+              onTap: () {
+                Navigator.pop(context);
+                _confirmarCancelamento();
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _trocarMedico() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BottomSheetContainer(
+        'Trocar médico',
+        TrocarMedicoForm(
+          idConsulta: widget.idConsulta,
+          idMedicoAtual: widget.idMedico,
+          onSucesso: () {
+            if (widget.onAtualizar != null) {
+              widget.onAtualizar!();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  void _trocarData() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BottomSheetContainer(
+        'Trocar data',
+        TrocarDataForm(
+          idConsulta: widget.idConsulta,
+          idMedico: widget.idMedico,
+          dataAtual: widget.dataConsulta,
+          horarioAtual: widget.horaConsulta,
+          onSucesso: () {
+            if (widget.onAtualizar != null) {
+              widget.onAtualizar!();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  void _trocarHorario() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => BottomSheetContainer(
+        'Trocar horário',
+        TrocarHorarioForm(
+          idConsulta: widget.idConsulta,
+          idMedico: widget.idMedico,
+          dataConsulta: widget.dataConsulta,
+          horarioAtual: widget.horaConsulta,
+          onSucesso: () {
+            if (widget.onAtualizar != null) {
+              widget.onAtualizar!();
+            }
+          },
+        ),
+      ),
     );
   }
 
   void _confirmarCancelamento() {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8)
-            ),
-            title: Text('Cancelar consulta'),
-            content: Text('Tem certeza que deseja cancelar esta consulta?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Não'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  if (widget.onCancelar != null) {
-                    widget.onCancelar!();
-                  }
-                },
-                child: Text('Sim', style: TextStyle(color: Colors.red,fontSize: 18)),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text('Cancelar consulta'),
+        content: Text('Tem certeza que deseja cancelar esta consulta?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Não'),
           ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              if (widget.onCancelar != null) {
+                widget.onCancelar!();
+              }
+            },
+            child: Text('Sim', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
@@ -122,24 +178,20 @@ class _CardAgendamentoState extends State<CardAgendamento> {
       padding: EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(1000),
+        borderRadius: BorderRadius.circular(10),
         boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 5)],
       ),
       child: Row(
         children: [
-          ClipRRect(
-            borderRadius: BorderRadius.circular(100),
-            child: SizedBox(
-              width: 85,
-              height: 85,
-              child: Image.network(
-                widget.fotoMedico!,
-                fit: BoxFit.cover,
-                errorBuilder:
-                    (context, error, stackTrace) =>
-                        Icon(Icons.person, size: 100),
-              ),
-            ),
+          CircleAvatar(
+            radius: 30,
+            backgroundColor: Colors.grey[300],
+            backgroundImage: widget.fotoMedico != null && widget.fotoMedico!.isNotEmpty
+                ? NetworkImage(widget.fotoMedico!)
+                : null,
+            child: (widget.fotoMedico == null || widget.fotoMedico!.isEmpty)
+                ? Icon(Icons.person, size: 30, color: Colors.grey[700])
+                : null,
           ),
           SizedBox(width: 10),
           Expanded(
