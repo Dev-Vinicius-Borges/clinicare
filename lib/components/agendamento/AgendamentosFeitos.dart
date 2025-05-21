@@ -13,12 +13,13 @@ class AgendamentoFeitos extends StatefulWidget {
 }
 
 class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
-  DateTime dataInicial = DateTime.now();
+  DateTime _focusedDay = DateTime.now();
   DateTime? dataSelecionada;
   late int id_usuario;
   bool isLoading = true;
   List<ConsultaComMedicoModel> consultasUsuario = [];
   final ConsultaCompletoService _consultaService = ConsultaCompletoService();
+  CalendarFormat _calendarFormat = CalendarFormat.week;
 
   bool dataEstaDisponivel(DateTime day) {
     return _consultaService.dataTemConsulta(day, consultasUsuario);
@@ -48,10 +49,52 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
         consultasUsuario = resposta.Dados ?? [];
         isLoading = false;
       });
+      
+      _focarDataMaisProximaComConsulta();
     } catch (e) {
       setState(() {
         consultasUsuario = [];
         isLoading = false;
+      });
+    }
+  }
+  
+  void _focarDataMaisProximaComConsulta() {
+    if (consultasUsuario.isEmpty) return;
+    
+    consultasUsuario.sort((a, b) =>
+      a.consulta.data_consulta.compareTo(b.consulta.data_consulta));
+    
+    DateTime agora = DateTime.now();
+    DateTime? proximaData;
+    
+    for (var consulta in consultasUsuario) {
+      DateTime dataConsulta = consulta.consulta.data_consulta;
+      DateTime dataNormalizada = DateTime(
+        dataConsulta.year,
+        dataConsulta.month,
+        dataConsulta.day,
+      );
+      
+      if (dataNormalizada.isAfter(agora) || isSameDay(dataNormalizada, agora)) {
+        proximaData = dataNormalizada;
+        break;
+      }
+    }
+    
+    if (proximaData == null && consultasUsuario.isNotEmpty) {
+      var ultimaConsulta = consultasUsuario.last;
+      proximaData = DateTime(
+        ultimaConsulta.consulta.data_consulta.year,
+        ultimaConsulta.consulta.data_consulta.month,
+        ultimaConsulta.consulta.data_consulta.day,
+      );
+    }
+    
+    if (proximaData != null) {
+      setState(() {
+        dataSelecionada = proximaData;
+        _focusedDay = proximaData!;
       });
     }
   }
@@ -89,17 +132,11 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
     }
   }
 
-  void trocarMedico(int idConsulta) {
+  void trocarMedico(int idConsulta) {}
 
-  }
+  void trocarHorario(int idConsulta) {}
 
-  void trocarHorario(int idConsulta) {
-
-  }
-
-  void trocarData(int idConsulta) {
-
-  }
+  void trocarData(int idConsulta) {}
 
   @override
   void initState() {
@@ -110,25 +147,26 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
     });
   }
 
+  bool isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         TableCalendar(
           locale: 'pt_BR',
-          firstDay: DateTime.now(),
-          lastDay: DateTime.utc(2030, 12, 31),
-          focusedDay: DateTime.now(),
-          selectedDayPredicate:
-              (day) =>
-                  dataSelecionada != null && isSameDay(dataSelecionada, day),
+          firstDay: DateTime.now().subtract(Duration(days: 365)),
+          lastDay: DateTime.now().add(Duration(days: 365)),
+          focusedDay: _focusedDay,
+          selectedDayPredicate: (day) =>
+              dataSelecionada != null && isSameDay(dataSelecionada!, day),
           onDaySelected: (selectedDay, focusedDay) {
-            if (dataEstaDisponivel(selectedDay) || true) {
-              setState(() {
-                dataSelecionada = selectedDay;
-                dataInicial = focusedDay;
-              });
-            }
+            setState(() {
+              dataSelecionada = selectedDay;
+              _focusedDay = focusedDay;
+            });
           },
           calendarStyle: CalendarStyle(
             defaultDecoration: BoxDecoration(shape: BoxShape.circle),
@@ -171,56 +209,74 @@ class _AgendamentoFeitosState extends State<AgendamentoFeitos> {
           ),
           headerVisible: true,
           daysOfWeekVisible: true,
-          pageJumpingEnabled: false,
-          availableCalendarFormats: const {CalendarFormat.week: 'Semana'},
+          pageJumpingEnabled: true,
+          availableCalendarFormats: const {
+            CalendarFormat.week: 'Semana',
+            CalendarFormat.month: 'Mês'
+          },
           startingDayOfWeek: StartingDayOfWeek.monday,
-          calendarFormat: CalendarFormat.week,
+          calendarFormat: _calendarFormat,
+          onFormatChanged: (format) {
+            setState(() {
+              _calendarFormat = format;
+            });
+          },
+          onPageChanged: (focusedDay) {
+            setState(() {
+              _focusedDay = focusedDay;
+            });
+          },
         ),
         Expanded(
-          child:
-              isLoading
-                  ? Center(child: CircularProgressIndicator())
-                  : dataSelecionada == null
+          child: isLoading
+              ? Center(child: CircularProgressIndicator())
+              : dataSelecionada == null
                   ? Center(
-                    child: Text('Selecione uma data para ver as consultas'),
-                  )
+                      child: Text('Selecione uma data para ver as consultas'),
+                    )
                   : Builder(
-                    builder: (context) {
-                      final agendamentosDoDia = obterAgendamentos(
-                        dataSelecionada,
-                      );
+                      builder: (context) {
+                        final agendamentosDoDia = obterAgendamentos(
+                          dataSelecionada,
+                        );
 
-                      if (agendamentosDoDia.isEmpty) {
-                        return CardSemConsulta();
-                      }
+                        if (agendamentosDoDia.isEmpty) {
+                          return CardSemConsulta();
+                        }
 
-                      return ListView.builder(
-                        itemCount: agendamentosDoDia.length,
-                        itemBuilder: (context, index) {
-                          var agendamento = agendamentosDoDia[index];
+                        return ListView.builder(
+                          itemCount: agendamentosDoDia.length,
+                          itemBuilder: (context, index) {
+                            var agendamento = agendamentosDoDia[index];
 
-                          String horarioFormatado =
-                              '${agendamento.consulta.data_consulta.hour.toString().padLeft(2, '0')}:${agendamento.consulta.data_consulta.minute.toString().padLeft(2, '0')}';
+                            String horarioFormatado =
+                                '${agendamento.consulta.data_consulta.hour.toString().padLeft(2, '0')}:${agendamento.consulta.data_consulta.minute.toString().padLeft(2, '0')}';
 
-                          return CardAgendamento(
-                            horario: horarioFormatado,
-                            nome: agendamento.medico.nome,
-                            especialidade: agendamento.medico.especialidade,
-                            fotoMedico: agendamento.medico.foto_medico,
-                            idConsulta: agendamento.consulta.id,
-                            onCancelar:
-                                () => cancelarConsulta(agendamento.consulta.id),
-                            onTrocarMedico:
-                                () => trocarMedico(agendamento.consulta.id),
-                            onTrocarHorario:
-                                () => trocarHorario(agendamento.consulta.id),
-                            onTrocarData:
-                                () => trocarData(agendamento.consulta.id),
-                          );
-                        },
-                      );
-                    },
-                  ),
+                            return CardAgendamento(
+                              idMedico: agendamento.medico.id,
+                              dataConsulta: agendamento.consulta.data_consulta,
+                              horaConsulta: TimeOfDay(
+                                hour: agendamento.consulta.data_consulta.hour,
+                                minute: agendamento.consulta.data_consulta.minute,
+                              ),
+                              horario: horarioFormatado,
+                              nome: agendamento.medico.nome,
+                              especialidade: agendamento.medico.especialidade,
+                              fotoMedico: agendamento.medico.foto_medico,
+                              idConsulta: agendamento.consulta.id,
+                              onCancelar:
+                                  () => cancelarConsulta(agendamento.consulta.id),
+                              onTrocarMedico:
+                                  () => trocarMedico(agendamento.consulta.id),
+                              onTrocarHorario:
+                                  () => trocarHorario(agendamento.consulta.id),
+                              onTrocarData:
+                                  () => trocarData(agendamento.consulta.id),
+                            );
+                          },
+                        );
+                      },
+                    ),
         ),
       ],
     );
